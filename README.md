@@ -1,5 +1,4 @@
-jumpage
-=======
+jumpage Framework
+=================
 
-Something awesome is coming soon... by
-[bureaubleen.com](http://bureaubleen.com)
+Something awesome is coming soon...by [bureaubleen.com](http://bureaubleen.com)
