@@ -61,7 +61,7 @@ class Jumpage
 	private function _initProfile()
 	{
 		$this->profile = (array) json_decode(
-			file_get_contents($this->_cfg->defaultGraphUrl
+			$this->url_get_contents($this->_cfg->defaultGraphUrl
 				. $this->_cfg->fbUserName /*. '?access_token=' 
 				. $this->_cfg->accessToken*/)
 		);
@@ -97,7 +97,7 @@ class Jumpage
 		
 		
 // 		$this->images = json_decode(
-// 			file_get_contents($this->_cfg->defaultGraphUrl 
+// 			$this->url_get_contents($this->_cfg->defaultGraphUrl 
 // 				. $this->_cfg->fbAlbumId . '/photos' /* . '?access_token=' 
 // 				. $this->_cfg->accessToken*/)
 // 		);
@@ -149,7 +149,7 @@ class Jumpage
 	public function getAlbums()
 	{
 		$albums = json_decode(
-			file_get_contents($this->_cfg->defaultGraphUrl
+			$this->url_get_contents($this->_cfg->defaultGraphUrl
 				. $this->_cfg->fbUserName . '/albums' /*. '?access_token=' 
 				. $this->_cfg->accessToken*/)
 		);
@@ -160,7 +160,7 @@ class Jumpage
 		if($this->_cfg->accessToken != '')
 		{
 			$events = json_decode(
-				file_get_contents($this->_cfg->secureGraphUrl
+				$this->url_get_contents($this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '/events?access_token='
 					. $this->_cfg->accessToken)
 			);
@@ -192,7 +192,7 @@ class Jumpage
 		if($this->_cfg->accessToken != '')
 		{
 			$notes = json_decode(
-				file_get_contents($this->_cfg->secureGraphUrl
+				$this->url_get_contents($this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '/notes?access_token='
 					. $this->_cfg->accessToken)
 			);
@@ -258,7 +258,7 @@ class Jumpage
 		else
 		{
 			$data = (array) @json_decode(
-				file_get_contents($this->_cfg->defaultGraphUrl
+				$this->url_get_contents($this->_cfg->defaultGraphUrl
 					. $this->_cfg->fbUserName . '?fields='
 					. $fbFieldName . '&access_token='
 					. $this->_cfg->accessToken)
@@ -294,13 +294,15 @@ class Jumpage
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
 				. $this->_cfg->accessToken . '&q=' . urlencode($query);
-			if($result = @file_get_contents($url))
+			
+			if($result = @$this->url_get_contents($url))
 			{
 				if($result = json_decode($result))
 				{
 					return $result->data;
 				}
 			}
+			
 		}
 		
 		if($this->_cfg->fqlProxyUrl != '')
@@ -314,7 +316,7 @@ class Jumpage
 			$url = $this->_cfg->fqlProxyUrl . '?q=' 
 				. urlencode($query);
 			
-			if($result = @file_get_contents($url, false, $context))
+			if($result = @$this->url_get_contents($url, false, $context))
 			{
 				if($result = json_decode($result))
 				{
@@ -326,24 +328,55 @@ class Jumpage
 		return array();
 	}
 	
-	private function _getAccessToken()
-	{
-		return @file_get_contents($this->_cfg->secureGraphUrl
-			. 'oauth/access_token?client_id='
-			. $this->_cfg->fbAppId . '&client_secret='
-			. $this->_cfg->fbAppSecret 
-			. '&grant_type=client_credentials');
-	}
+// 	private function _getAccessToken()
+// 	{
+// 		return @$this->url_get_contents($this->_cfg->secureGraphUrl
+// 			. 'oauth/access_token?client_id='
+// 			. $this->_cfg->fbAppId . '&client_secret='
+// 			. $this->_cfg->fbAppSecret 
+// 			. '&grant_type=client_credentials');
+// 	}
 	
-	private function _loadCache()
+	public static function loadCache()
 	{
-		exit(file_get_contents(CACHE_FILE_NAME));
+		try
+		{
+			exit(file_get_contents(CACHE_FILE_NAME));
+		}
+		catch (Exception $e)
+		{
+			exit('An error occured');
+		}
+		
 	}
 	
 	public function run($template)
 	{
 		require_once $template;
 	}
+	
+	public function url_get_contents($url, $use_include_path=false, $context=null)
+	{ 
+	    if (!function_exists('curl_init'))
+	    {
+	    	return file_get_contents($url, $use_include_path, $context);
+	    }
+	    
+		$ch = curl_init();
+		
+		$timeout = 5; // zero for no timeout
+		
+		curl_setopt ($ch, CURLOPT_URL, $url);
+		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+		
+		$content = curl_exec($ch);
+		
+		curl_close($ch);
+	    
+		return $content;
+	}
+	
 	
 	private function _tidyFacebookMessage($message)
 	{
@@ -382,5 +415,7 @@ class Jumpage
 	}
 	
 }
+
+set_exception_handler(array('Jumpage', 'loadCache'));
 
 
