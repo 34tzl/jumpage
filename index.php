@@ -14,12 +14,14 @@
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see http://www.gnu.org/licenses.
+ *  along with this program. If not, see http://www.gnu.org/licenses.
  *  
  *  @author Ralf Langebrake
- *  @link jumpage.net/app
+ *  @link jumpage.net
  *
+ *  Install the jumpage Facebook App and get your strong Page Access
+ *  Token on jumpage.net/app
+ *  
  */
-
 require_once 'jumpage.bootstrap.php';
 

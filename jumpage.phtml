@@ -14,11 +14,14 @@
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see http://www.gnu.org/licenses.
+ *  along with this program. If not, see http://www.gnu.org/licenses.
  *  
  *  @author Ralf Langebrake
- *  @link jumpage.net/app
+ *  @link jumpage.net
  *
+ *  Install the jumpage Facebook App and get your strong Page Access
+ *  Token on jumpage.net/app
+ *  
  */
 ?><!DOCTYPE html>
 <!--[if lt IE 7 ]><html lang="en" class="no-js ie6"><![endif]-->
@@ -41,11 +44,21 @@
 
 <header></header>
 
-<section class="decription"></section>
-<section class="images"></section>
-<section class="posts"></section>
+<?= $this->getField('about', '', '<section class="decription">', '"</section>') ?>
+
+<section class="images">
+<?php foreach($this->images as $image) { ?>
+<div class="image"></div>
+<?php } ?>
+</section>
+
+<section class="posts">
+<?php foreach($this->posts as $post) { ?>
+<div class="post"></div>
+<?php } ?>
+</section>
+
 <section class="events"></section>
-<section class="albums"></section>
 
 <!--section class="maps"><div id="map"></div></section-->
 

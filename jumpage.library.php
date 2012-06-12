@@ -14,13 +14,15 @@
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see http://www.gnu.org/licenses.
+ *  along with this program. If not, see http://www.gnu.org/licenses.
  *  
  *  @author Ralf Langebrake
- *  @link jumpage.net/app
+ *  @link jumpage.net
  *
+ *  Install the jumpage Facebook App and get your strong Page Access
+ *  Token on jumpage.net/app
+ *  
  */
-
 class Jumpage
 {
 	protected $_cfg;
@@ -34,6 +36,14 @@ class Jumpage
 	public function __construct($template='')
 	{
 		require_once "jumpage.config.php";
+		
+		if(isset($config['template']))
+		{
+			if(file_exists($config['template']))
+			{
+				$template = $config['template'];
+			}
+		}
 		
 		$this->_cfg = (object) $this->_initConfig($config);
 		
@@ -91,10 +101,10 @@ class Jumpage
 		$aid = $this->_cfg->fbWallId
 			. '_' . $this->_cfg->fbAlbumId;
 		
-		$fql = 'SELECT pid, src FROM photo WHERE aid="' . $aid . '"';
-		
-		$this->images = $this->getByFqlQuery($fql);
-		
+		if(!empty($aid))
+		{
+			$this->images = $this->getImages($aid);
+		}
 		
 // 		$this->images = json_decode(
 // 			$this->url_get_contents($this->_cfg->defaultGraphUrl 
@@ -103,26 +113,58 @@ class Jumpage
 // 		);
 	}
 	
+	private function _getPostImage($attachment)
+	{
+		$image = false;
+		
+		if(isset($attachment->media))
+		{
+			foreach($attachment->media as $media)
+			{
+				if($media->type == 'photo')
+				{
+					if($media->photo->width > 720 || $media->photo->height > 720)
+					{
+						if(isset($media->photo->images))
+						{
+							$image = array();
+								
+							$helper = $media->photo->images[count($media->photo->images)-1];
+							$image['src'] = $helper->src;
+							$image['width'] = $helper->width;
+							$image['height'] = $helper->height;
+							$image['alt'] = $media->alt;
+							$image['href'] = $media->href;
+								
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		return $image;
+	}
 	
 	private function _initPosts()
 	{
 		/* Stream Types
-		11 - Group created 
-		12 - Event created 
-		46 - Status update 
-		56 - Post on wall from another user 
-		66 - Note created 
-		80 - Link posted 
-		128 - Video posted 
-		247 - Photos posted 
-		237 - App story 
-		272 - App story 
+			11 - Group created 
+			12 - Event created 
+			46 - Status update 
+			56 - Post on wall from another user 
+			66 - Note created 
+			80 - Link posted 
+			128 - Video posted 
+			247 - Photos posted 
+			237 - App story 
+			272 - App story 
 		*/
 		
 		$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
 		
-		$fql = "SELECT created_time, type, message, permalink FROM stream "
-		. "WHERE message<>'' AND type<>56 AND source_id ='"
+		$fql = "SELECT type, created_time, message, attachment, permalink FROM stream "
+		. "WHERE (type=46 OR type=247) AND source_id ='"
 		. $this->_cfg->fbWallId . "' AND actor_id='"
 		. $this->_cfg->fbWallId . "' AND is_hidden=0 AND created_time > "
 		. $timeLimit . " ORDER BY created_time DESC LIMIT "
@@ -133,12 +175,29 @@ class Jumpage
 		foreach($items as $item)
 		{
 			$message = preg_replace('/(http.+)$/i', '[...]', $item->message);
+			$image = $this->_getPostImage($item->attachment);
 			
-			if($message != '[...]')
+			$href = $item->permalink;
+			
+			if($image !== false)
+			{
+				$image = (object) $image;
+				$href = $image->href;
+				
+				if($message == '' || $message == '[...]')
+				{
+					$message = $image->alt;
+				}
+				
+			}
+			
+			if(!(($message == '' || $message == '[...]') && $image === false))
 			{
 				$this->posts[] = (object) array(
 					'message' => $this->_tidyFacebookMessage($message),
-					'href' => $item->permalink
+					'href' => $href,
+					'type' => $item->type,
+					'image' => $image
 				);
 			}
 		}
@@ -180,7 +239,8 @@ class Jumpage
 				. '_' . $this->_cfg->fbAlbumId;
 		}
 		
-		$fql = 'SELECT pid, src FROM photo WHERE aid="' . $aid . '"';
+		$fql = 'SELECT pid, src_big, src_big_width, src_big_height, link, caption FROM photo WHERE aid="' 
+			. $aid . '" ORDER BY created LIMIT 9';
 		
 		return $this->getByFqlQuery($fql);
 	}
@@ -251,7 +311,8 @@ class Jumpage
 			$fbFieldName => ''
 		);
 		
-		if(in_array($fbFieldName, $this->profile))
+// 		if(in_array($fbFieldName, $this->profile))
+		if(isset($this->profile[$fbFieldName]))
 		{
 			$data[$fbFieldName] = $this->profile[$fbFieldName];
 		}
@@ -263,6 +324,11 @@ class Jumpage
 					. $fbFieldName . '&access_token='
 					. $this->_cfg->accessToken)
 			);
+		}
+		
+		if(empty($data[$fbFieldName]))
+		{
+			return $prefix . $default . $suffix;
 		}
 		
 		$value = trim($data[$fbFieldName]);

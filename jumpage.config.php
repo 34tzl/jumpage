@@ -14,23 +14,22 @@
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see http://www.gnu.org/licenses.
+ *  along with this program. If not, see http://www.gnu.org/licenses.
  *  
  *  @author Ralf Langebrake
- *  @link jumpage.net/app
+ *  @link jumpage.net
  *
  *  Install the jumpage Facebook App and get your strong Page Access
  *  Token on jumpage.net/app
  *  
  */
-
 $config = array(
-	'accessToken' => '', /* YOUR LONGLIVE FACEBOOK JUMPAGE PAGE ACCESS TOKE jumpage.net/app N */
-	'fqlProxyUrl' => '', /* Trusted FQL service, if you have no accessToken */
+	'accessToken' => '', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
 	'fbWallId' => '', /* YOUR FACEBOOK WALL ID */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID */
 	'fbUserName' => '', /* YOUR FACEBOOK USER NAME */
 	'fbDaysBack' => 90,
 	'fbMaxPosts' => 5,
-	'googlePlacesLink' => ''
+	'googlePlacesLink' => '',
+	'template' => 'jumpage.phtml'
 );

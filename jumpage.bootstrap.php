@@ -14,21 +14,23 @@
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see http://www.gnu.org/licenses.
+ *  along with this program. If not, see http://www.gnu.org/licenses.
  *  
  *  @author Ralf Langebrake
- *  @link jumpage.net/app
+ *  @link jumpage.net
  *
+ *  Install the jumpage Facebook App and get your strong Page Access
+ *  Token on jumpage.net/app
+ *  
  */
-
-define('CACHE_FILE_NAME', 'jumpage.temp.htm');
+define('CACHE_FILE_NAME', 'jumpage.cachefile.htm');
 define('CACHE_EXPIRE_MINUTES', 24*60);
 
 header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');
-//header('imagetoolbar: no');
+// header('imagetoolbar: no');
 
-ini_set('allow_url_fopen', 'On');
+// ini_set('allow_url_fopen', 'On');
 
 if(!empty($_GET['cache']))
 {
@@ -56,7 +58,7 @@ require_once "jumpage.library.php";
 $jp = new Jumpage('jumpage.phtml');
 
 file_put_contents(
-CACHE_FILE_NAME, ob_get_contents()
+	CACHE_FILE_NAME, ob_get_contents()
 );
 
 
