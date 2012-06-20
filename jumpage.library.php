@@ -116,6 +116,7 @@ class Jumpage
 	private function _getPostImage($attachment)
 	{
 		$image = false;
+		$where = '';
 		
 		if(isset($attachment->media))
 		{
@@ -123,22 +124,48 @@ class Jumpage
 			{
 				if($media->type == 'photo')
 				{
-					if($media->photo->width > 720 || $media->photo->height > 720)
-					{
-						if(isset($media->photo->images))
-						{
+// 					if($media->photo->width > 600)
+// 					{
+// 						if(isset($media->photo->images))
+// 						{
 							$image = array();
 								
-							$helper = $media->photo->images[count($media->photo->images)-1];
-							$image['src'] = $helper->src;
-							$image['width'] = $helper->width;
-							$image['height'] = $helper->height;
+// 							$helper = $media->photo->images[count($media->photo->images)-1];
+// 							$image['src'] = $helper->src;
+// 							$image['width'] = $helper->width;
+// 							$image['height'] = $helper->height;
+							
+// 							$fql = 'SELECT photo_id, src, width, height FROM photo_src '
+// 									. 'WHERE width<960 AND photo_id='
+// 									. $media->photo->fbid . ' LIMIT 1';
+							
+// 							$item = $this->getByFqlQuery($fql);
+							
+							
+							$pic = json_decode($this->url_get_contents(
+								$this->_cfg->defaultGraphUrl 
+									. '/' . $media->photo->fbid));
+							
+							foreach($pic->images as $img)
+							{
+								if($img->width < 960)
+								{
+									$item = $img;
+									break;
+								}
+							}
+							
+							$image['pid'] = $media->photo->fbid;
+							$image['src'] = $item->source; //$item[0]->src;
+							$image['width'] = $item->width; // $media->photo->width; //$item[0]->width;
+							$image['height'] = $item->height; //$media->photo->height; //$item[0]->height;
 							$image['alt'] = $media->alt;
 							$image['href'] = $media->href;
-								
+							
 							break;
-						}
-					}
+// 						}
+						
+// 					}
 				}
 			}
 		}
@@ -164,7 +191,7 @@ class Jumpage
 		$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
 		
 		$fql = "SELECT type, created_time, message, attachment, permalink FROM stream "
-		. "WHERE (type=46 OR type=247) AND source_id ='"
+		. "WHERE (type=46 OR type=80 OR type=247) AND source_id='"
 		. $this->_cfg->fbWallId . "' AND actor_id='"
 		. $this->_cfg->fbWallId . "' AND is_hidden=0 AND created_time > "
 		. $timeLimit . " ORDER BY created_time DESC LIMIT "
@@ -179,10 +206,14 @@ class Jumpage
 			
 			$href = $item->permalink;
 			
+			$height = 0;
+			
 			if($image !== false)
 			{
 				$image = (object) $image;
 				$href = $image->href;
+				
+				$height += $image->height;
 				
 				if($message == '' || $message == '[...]')
 				{
@@ -193,11 +224,19 @@ class Jumpage
 			
 			if(!(($message == '' || $message == '[...]') && $image === false))
 			{
+				$message = $this->_tidyFacebookMessage($message);
+				
+				if($message != '')
+				{
+					$height += $this->_getTextHeight($message);
+				}
+				
 				$this->posts[] = (object) array(
-					'message' => $this->_tidyFacebookMessage($message),
+					'message' => $message,
 					'href' => $href,
 					'type' => $item->type,
-					'image' => $image
+					'image' => $image,
+					'height' => $height
 				);
 			}
 		}
@@ -239,10 +278,51 @@ class Jumpage
 				. '_' . $this->_cfg->fbAlbumId;
 		}
 		
-		$fql = 'SELECT pid, src_big, src_big_width, src_big_height, link, caption FROM photo WHERE aid="' 
-			. $aid . '" ORDER BY created LIMIT 9';
+// 		$fql = "SELECT src, width, height FROM photo_src WHERE width > 960 "
+// 			. "AND photo_id IN(SELECT object_id FROM photo WHERE aid='" . $aid . "')";
 		
-		return $this->getByFqlQuery($fql);
+		$fql = "SELECT pid, object_id, link, caption FROM photo WHERE aid='" 
+			. $aid . "' ORDER BY created LIMIT 9";
+		
+		$items = $this->getByFqlQuery($fql);
+		$helper = array();
+		
+		$where = '';
+		
+		foreach($items as $item)
+		{
+			$helper[$item->object_id] = (object) array(
+				'link' => $item->link,
+				'caption' => $item->caption,
+				'src' => '',
+				'width' => 0,
+				'height' => 0
+			);
+			
+			if($where != '')
+			{
+				$where .= ',';
+			}
+			
+			$where .= strval($item->object_id);
+		}
+		
+		$fql = 'SELECT photo_id, src, width, height FROM photo_src '
+			. 'WHERE width > 960 AND photo_id IN(' . $where . ')';
+		
+		$items = $this->getByFqlQuery($fql);
+		$images = array();
+		
+		foreach($items as $item)
+		{
+			$helper[$item->photo_id]->src = $item->src;
+			$helper[$item->photo_id]->width = $item->width;
+			$helper[$item->photo_id]->height = $item->height;
+			
+			$images[] = $helper[$item->photo_id];
+		}
+		
+		return $images;
 	}
 
 	public function getNotes()
@@ -273,7 +353,25 @@ class Jumpage
 	
 	public function getImage($fbImageId)
 	{
+		$item = json_decode($this->url_get_contents(
+			$this->_cfg->defaultGraphUrl
+				. '/' . $fbImageId));
 		
+		foreach($item->images as $image)
+		{
+			if($image->width > 960)
+			{
+				return (object) array(
+					'href' => $item->link,
+					'src' => $image->source,
+					'width' => $image->width,
+					'height' => $image->height,
+					'alt' => ''
+				);
+			}
+		}
+		
+		return false;
 	}
 	
 	public function getNote($fbNoteId)
@@ -359,7 +457,7 @@ class Jumpage
 		if($this->_cfg->accessToken != '')
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
-				. $this->_cfg->accessToken . '&q=' . urlencode($query);
+				. $this->_cfg->accessToken . '&format=json-strings&q=' . urlencode($query);
 			
 			if($result = @$this->url_get_contents($url))
 			{
@@ -478,6 +576,13 @@ class Jumpage
 		}
 	
 		return trim($message);
+	}
+	
+	private function _getTextHeight($txt, $maxLineWidth=600)
+	{
+		$height = 0;
+		
+		return $height;
 	}
 	
 }
