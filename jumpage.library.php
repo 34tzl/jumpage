@@ -10,7 +10,7 @@
  *  
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License
@@ -37,13 +37,20 @@ class Jumpage
 	{
 		require_once "jumpage.config.php";
 		
-		if(isset($config['template']))
+	if(isset($config['template']))
 		{
 			if(file_exists($config['template']))
 			{
 				$template = $config['template'];
 			}
 		}
+		
+		if(empty($config['accessToken']))
+		{
+			exit('PAGE ACCESS TOKEN required! Get yours on jumpage.net/app');
+		}
+		
+		
 		
 		$this->_cfg = (object) $this->_initConfig($config);
 		
@@ -546,6 +553,12 @@ class Jumpage
 	{
 		$message = strip_tags($message);
 		$message = preg_replace('/\s+/', ' ', $message);
+		
+		$message = str_replace(array(
+			'&'
+		), array(
+			'&amp;'
+		), $message);
 		
 		return trim($message);
 		
