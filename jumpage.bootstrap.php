@@ -24,7 +24,7 @@
  *  
  */
 define('CACHE_FILE_NAME', 'jumpage.cachefile.htm');
-define('CACHE_EXPIRE_MINUTES', 24*60);
+define('CACHE_EXPIRE_MINUTES', 12*60);
 
 header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');

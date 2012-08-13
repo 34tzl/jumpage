@@ -31,13 +31,15 @@ class Jumpage
 	public $images = array();
 	public $posts = array();
 	
+	public $version = 'jumpage Framework 0.9';
+	
 	private $_notes = false;
 	
 	public function __construct($template='')
 	{
 		require_once "jumpage.config.php";
 		
-	if(isset($config['template']))
+		if(isset($config['template']))
 		{
 			if(file_exists($config['template']))
 			{
@@ -360,24 +362,24 @@ class Jumpage
 	
 	public function getImage($fbImageId)
 	{
-		$item = json_decode($this->url_get_contents(
+		if($item = json_decode($this->url_get_contents(
 			$this->_cfg->defaultGraphUrl
-				. '/' . $fbImageId));
-		
-		foreach($item->images as $image)
+				. '/' . $fbImageId)))
 		{
-			if($image->width > 960)
+			foreach($item->images as $image)
 			{
-				return (object) array(
-					'href' => $item->link,
-					'src' => $image->source,
-					'width' => $image->width,
-					'height' => $image->height,
-					'alt' => ''
-				);
+				if($image->width > 960)
+				{
+					return (object) array(
+						'href' => $item->link,
+						'src' => $image->source,
+						'width' => $image->width,
+						'height' => $image->height,
+						'alt' => ''
+					);
+				}
 			}
 		}
-		
 		return false;
 	}
 	
@@ -527,7 +529,16 @@ class Jumpage
 	}
 	
 	public function url_get_contents($url, $use_include_path=false, $context=null)
-	{ 
+	{
+		if(strpos($url, '?') === false)
+		{
+			$url .= '?format=json-strings';
+		}
+		else
+		{
+			$url .= '&format=json-strings';
+		}
+		
 	    if (!function_exists('curl_init'))
 	    {
 	    	return file_get_contents($url, $use_include_path, $context);
@@ -555,9 +566,9 @@ class Jumpage
 		$message = preg_replace('/\s+/', ' ', $message);
 		
 		$message = str_replace(array(
-			'&'
+			'&', '> <'
 		), array(
-			'&amp;'
+			'&amp;', '><'
 		), $message);
 		
 		return trim($message);
