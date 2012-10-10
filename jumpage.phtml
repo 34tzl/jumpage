@@ -29,16 +29,21 @@
 <!--[if IE 8 ]><html lang="en" class="no-js ie8"><![endif]-->
 <!--[if IE 9 ]><html lang="en" class="no-js ie9"><![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!--><html lang="en" class="no-js"><!--<![endif]-->
-<head>
+<head prefix="og: http://ogp.me/ns#">
 <meta charset="UTF-8" />
 <title><?= $this->getField('name', 'New jumpage at work') ?></title>
 <?= $this->getField('about', '', '<meta name="description" content="', '" />') ?>
 
 <meta name="generator" content="<?= $this->version ?>" />
+<meta property="og:title" content="<?= $this->getField('name') ?>" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="<?= 'http://' . $url . '/' ?>" />
+<meta property="og:image" content="<?= 'http://' . $url . '/facebook-link-icon.jpg' ?>" />
+<?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
-<link rel="apple-touch-icon-precomposed" href="<?= 'http://' . $_SERVER['HTTP_HOST'] . '/apple-touch-icon-precomposed.png' ?>" />
-<link rel="image_src" href="<?= 'http://' . $_SERVER['HTTP_HOST'] . '/facebook-link-icon.jpg' ?>" />
-<link rel="shortcut icon" href="<?= 'http://' . $_SERVER['HTTP_HOST'] . '/favicon.ico' ?>" />
+<link rel="apple-touch-icon" href="<?= 'http://' . $url . '/apple-touch-icon.png' ?>" />
+<link rel="image_src" href="<?= 'http://' . $url . '/facebook-link-icon.jpg' ?>" />
+<link rel="shortcut icon" href="<?= 'http://' . $url . '/favicon.ico' ?>" />
 <link rel="stylesheet" href="common/jumpage.css" />
 <!--[if lt IE 9]><script src="common/modernizr-2.5.3.min.js"></script><![endif]-->
 </head>

@@ -30,16 +30,15 @@ header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');
 // header('imagetoolbar: no');
 
-// ini_set('allow_url_fopen', 'On');
+ini_set('allow_url_fopen', 'On');
+
+$loadCacheFile = true;
 
 if(!empty($_GET['cache']))
 {
 	if($_GET['cache'] == 'clear')
 	{
-		if(file_exists(CACHE_FILE_NAME))
-		{
-			unlink(CACHE_FILE_NAME);
-		}
+		$loadCacheFile = false;
 	}
 }
 
@@ -47,15 +46,26 @@ ob_start("ob_gzhandler");
 
 $filemtime = @filemtime(CACHE_FILE_NAME);
 
-if($filemtime !== false && (
-	time() - $filemtime < (60 * CACHE_EXPIRE_MINUTES)))
+if($loadCacheFile)
 {
-	exit(file_get_contents(CACHE_FILE_NAME));
+	if($filemtime !== false && (
+			time() - $filemtime < (60 * CACHE_EXPIRE_MINUTES)))
+	{
+		if(file_exists(CACHE_FILE_NAME))
+		{
+			exit(file_get_contents(CACHE_FILE_NAME));
+		}
+	}
 }
 
 require_once "jumpage.library.php";
 
 $jp = new Jumpage('jumpage.phtml');
+
+if(file_exists(CACHE_FILE_NAME))
+{
+	unlink(CACHE_FILE_NAME);
+}
 
 file_put_contents(
 	CACHE_FILE_NAME, ob_get_contents()

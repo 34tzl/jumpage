@@ -23,9 +23,13 @@
  *  Token on jumpage.net/app
  *  
  */
+ini_set('precision', 20);
+
 class Jumpage
 {
 	protected $_cfg;
+	
+	public $baseurl;
 	
 	public $profile = array();
 	public $images = array();
@@ -47,12 +51,15 @@ class Jumpage
 			}
 		}
 		
-		if(empty($config['accessToken']))
+		if(isset($config['accessToken']))
 		{
-			exit('PAGE ACCESS TOKEN required! Get yours on jumpage.net/app');
+			if(strlen(trim($config['accessToken'])) < 9)
+			{
+				exit('PAGE ACCESS TOKEN required! Get yours on <a href="http://jumpage.net/app">jumpage.net/app</a>');
+			}
 		}
 		
-		
+		$this->baseurl = $this->_url();
 		
 		$this->_cfg = (object) $this->_initConfig($config);
 		
@@ -69,6 +76,11 @@ class Jumpage
 		}
 	}
 	
+// 	public function getConfig()
+// 	{
+// 		return $this->_cfg;
+// 	}
+	
 	private function _initConfig($config)
 	{
 		$config['defaultGraphUrl'] = 'http://graph.facebook.com/';
@@ -79,10 +91,8 @@ class Jumpage
 	
 	private function _initProfile()
 	{
-		$this->profile = (array) json_decode(
-			$this->url_get_contents($this->_cfg->defaultGraphUrl
-				. $this->_cfg->fbUserName /*. '?access_token=' 
-				. $this->_cfg->accessToken*/)
+		$this->profile = (array) $this->url_get_contents(
+			$this->_cfg->defaultGraphUrl . $this->_cfg->fbUserName
 		);
 		
 		if(isset($this->profile['location']))
@@ -101,6 +111,16 @@ class Jumpage
 			{
 				$this->profile['city'] = $this->profile['location']->city;
 			}
+			
+			if(!empty($this->profile['location']->latitude))
+			{
+				$this->profile['latitude'] = $this->profile['location']->latitude;
+			}
+			
+			if(!empty($this->profile['location']->longitude))
+			{
+				$this->profile['longitude'] = $this->profile['location']->longitude;
+			}
 		}
 		
 	}
@@ -112,14 +132,12 @@ class Jumpage
 		
 		if(!empty($aid))
 		{
-			$this->images = $this->getImages($aid);
+			$this->images = $this->getImages($aid, 'position', 24);
 		}
 		
-// 		$this->images = json_decode(
-// 			$this->url_get_contents($this->_cfg->defaultGraphUrl 
-// 				. $this->_cfg->fbAlbumId . '/photos' /* . '?access_token=' 
-// 				. $this->_cfg->accessToken*/)
-// 		);
+// 		$this->images = $this->url_get_contents($this->_cfg->defaultGraphUrl 
+// 			. $this->_cfg->fbAlbumId . '/photos' /* . '?access_token=' 
+// 			. $this->_cfg->accessToken*/);
 	}
 	
 	private function _getPostImage($attachment)
@@ -151,9 +169,10 @@ class Jumpage
 // 							$item = $this->getByFqlQuery($fql);
 							
 							
-							$pic = json_decode($this->url_get_contents(
-								$this->_cfg->defaultGraphUrl 
-									. '/' . $media->photo->fbid));
+							$pic = $this->url_get_contents(
+								$this->_cfg->defaultGraphUrl . '/' 
+									. $media->photo->fbid
+							);
 							
 							foreach($pic->images as $img)
 							{
@@ -199,19 +218,48 @@ class Jumpage
 		
 		$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
 		
-		$fql = "SELECT type, created_time, message, attachment, permalink FROM stream "
+		$fql = "SELECT type, created_time, message, description, attachment, permalink FROM stream "
 		. "WHERE (type=46 OR type=80 OR type=247) AND source_id='"
 		. $this->_cfg->fbWallId . "' AND actor_id='"
 		. $this->_cfg->fbWallId . "' AND is_hidden=0 AND created_time > "
-		. $timeLimit . " ORDER BY created_time DESC LIMIT "
-		. $this->_cfg->fbMaxPosts;
+		. $timeLimit;
+		
+		if(isset($this->_cfg->fbMinPostLen))
+		{
+			if(intval($this->_cfg->fbMinPostLen) > 0)
+			{
+				$fql .= " AND strlen(message) >= " . intval($this->_cfg->fbMinPostLen);
+				
+// 				$fql .= " AND (strlen(message) >= " . intval($this->_cfg->fbMinPostLen);
+// 				$fql .= " OR strlen(description) >= " . intval($this->_cfg->fbMinPostLen) . ")";
+			}
+		}
+		
+		$fql .= " ORDER BY created_time DESC LIMIT " . $this->_cfg->fbMaxPosts;
 
 		$items = $this->getByFqlQuery($fql);
 		
+		$colheight = array(0,0);
+		
+		$maxPostLen = 0;
+		
+		if(isset($this->_cfg->fbMaxPostLen))
+		{
+			if(intval($this->_cfg->fbMaxPostLen) > 0)
+			{
+				$maxPostLen = intval($this->_cfg->fbMaxPostLen);
+			}
+		}
+		
 		foreach($items as $item)
 		{
-			$message = preg_replace('/(http.+)$/i', '[...]', $item->message);
+			$message = trim(preg_replace('/(http.+)$/i', '[...]', $item->message));
 			$image = $this->_getPostImage($item->attachment);
+			
+// 			if($message == '')
+// 			{
+// 				$message = $item->description;
+// 			}
 			
 			$href = $item->permalink;
 			
@@ -231,45 +279,138 @@ class Jumpage
 				
 			}
 			
+			if($maxPostLen > 0)
+			{
+				if(strlen($message) > $maxPostLen)
+				{
+					$words = explode(' ', $message);
+					$message = '';
+				
+					foreach($words as $word)
+					{
+						if(strlen($message) > $maxPostLen)
+						{
+							break;
+						}
+							
+						$message .= ' ' . $word;
+					}
+				
+					$message = rtrim($message, '.') . '...';
+				}
+			}
+			
 			if(!(($message == '' || $message == '[...]') && $image === false))
 			{
 				$message = $this->_tidyFacebookMessage($message);
 				
 				if($message != '')
 				{
-					$height += $this->_getTextHeight($message);
+// 					$height += $this->_getTextHeight($message);
+					$height += 80;
 				}
 				
+				$colnum = intval(0);
+				
+				if($colheight[0] > $colheight[1])
+				{
+					$colnum = intval(1);
+				}
+				
+				$colheight[$colnum] += $height;
+				
 				$this->posts[] = (object) array(
-					'message' => $message,
+					'message' => trim($message),
 					'href' => $href,
 					'type' => $item->type,
 					'image' => $image,
-					'height' => $height
+					'height' => $height,
+					'colnum' => $colnum
 				);
 			}
 		}
+		
 	}
 	
 	
 
 	public function getAlbums()
 	{
-		$albums = json_decode(
-			$this->url_get_contents($this->_cfg->defaultGraphUrl
-				. $this->_cfg->fbUserName . '/albums' /*. '?access_token=' 
-				. $this->_cfg->accessToken*/)
+		$albums = $this->url_get_contents(
+			$this->_cfg->defaultGraphUrl
+				. $this->_cfg->fbUserName . '/albums' 
 		);
 	}
-
+	
+	public function getAlbumsByType($type='normal')
+	{
+		/* 
+			The type of photo album. Can be one of
+			
+			profile: The album containing profile pictures
+			mobile: The album containing mobile upload photos
+			wall The album containing photos posted to a user's Wall
+			normal: For all other albums.
+		*/
+		
+		$fql = array(
+			"albums" => "SELECT aid, cover_pid, photo_count, name, description, link FROM album "
+				. "WHERE visible='everyone' AND photo_count>0 AND owner='" . $this->_cfg->fbWallId . "' "
+				. "AND type='" . $type . "'",
+			"covers" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
+				. "FROM photo WHERE pid IN(SELECT cover_pid FROM #albums)",
+			"images" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
+				. "FROM photo WHERE aid IN(SELECT aid FROM #albums) "
+				. "AND NOT (pid IN (SELECT cover_pid FROM #albums)) "
+				. "ORDER BY created"
+		);
+		
+		$json = json_encode($fql);
+		
+		$items = $this->getByFqlQuery($json);
+		
+		$albums = array();
+		
+		foreach ($items as $item)
+		{
+			if($item->name == 'albums')
+			{
+				foreach($item->fql_result_set as $album)
+				{
+					$albums[$album->aid] = $album;
+				}
+			}
+			
+			if($item->name == 'covers')
+			{
+				foreach($item->fql_result_set as $cover)
+				{
+					$albums[$cover->aid]->cover_pic = $cover;
+					$albums[$cover->aid]->freshest_pic = $cover;
+				}
+			}
+			
+			if($item->name == 'images')
+			{
+				foreach($item->fql_result_set as $image)
+				{
+					$albums[$image->aid]->freshest_pic = $image;
+				}
+			}
+				
+		}
+		
+		return $albums;
+	}
+	
 	public function getEvents()
 	{
 		if($this->_cfg->accessToken != '')
 		{
-			$events = json_decode(
-				$this->url_get_contents($this->_cfg->secureGraphUrl
+			$events = $this->url_get_contents(
+				$this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '/events?access_token='
-					. $this->_cfg->accessToken)
+					. $this->_cfg->accessToken
 			);
 		}
 	}
@@ -279,7 +420,7 @@ class Jumpage
 	
 // 	}
 	
-	public function getImages($aid='')
+	public function getImages($aid='', $order='created DESC', $limit=9)
 	{
 		if($aid == '')
 		{
@@ -291,7 +432,12 @@ class Jumpage
 // 			. "AND photo_id IN(SELECT object_id FROM photo WHERE aid='" . $aid . "')";
 		
 		$fql = "SELECT pid, object_id, link, caption FROM photo WHERE aid='" 
-			. $aid . "' ORDER BY created LIMIT 9";
+			. $aid . "' ORDER BY " . $order; // created, position
+		
+		if($limit > 0)
+		{
+			$fql .= ' LIMIT ' . $limit;
+		}
 		
 		$items = $this->getByFqlQuery($fql);
 		$helper = array();
@@ -340,10 +486,10 @@ class Jumpage
 		
 		if($this->_cfg->accessToken != '')
 		{
-			$notes = json_decode(
-				$this->url_get_contents($this->_cfg->secureGraphUrl
+			$notes = $this->url_get_contents(
+				$this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '/notes?access_token='
-					. $this->_cfg->accessToken)
+					. $this->_cfg->accessToken
 			);
 		}
 		
@@ -360,30 +506,36 @@ class Jumpage
 	
 	}
 	
-	public function getImage($fbImageId)
+	public function getImage($fbImageId, $minImageWidth=960)
 	{
-		if($item = json_decode($this->url_get_contents(
-			$this->_cfg->defaultGraphUrl
-				. '/' . $fbImageId)))
+		if($item = $this->url_get_contents(
+			$this->_cfg->defaultGraphUrl . $fbImageId))
 		{
-			foreach($item->images as $image)
+			$name = strip_tags(@$item->name);
+			$name = preg_replace('/\s+/', ' ', $name);
+			$name = str_replace('"', '', $name);
+			
+			if(isset($item->images))
 			{
-				if($image->width > 960)
+				foreach($item->images as $image)
 				{
-					return (object) array(
-						'href' => $item->link,
-						'src' => $image->source,
-						'width' => $image->width,
-						'height' => $image->height,
-						'alt' => ''
-					);
+					if($image->width > $minImageWidth)
+					{
+						return (object) array(
+							'href' => $item->link,
+							'src' => $image->source,
+							'width' => $image->width,
+							'height' => $image->height,
+							'alt' => trim($name)
+						);
+					}
 				}
 			}
 		}
 		return false;
 	}
 	
-	public function getNote($fbNoteId)
+	public function getNote($fbNoteId, $stripTags=false)
 	{
 		if($this->_notes === false)
 		{
@@ -394,9 +546,22 @@ class Jumpage
 		{
 			if($note->id == $fbNoteId)
 			{
-				$note->message = str_replace(array(
-					'<div><p>','</p></div>'
-				), '', $note->message);
+				if($stripTags==true)
+				{
+					$note->message = preg_replace('/<\/p>?.<p>/i', "\n", $note->message);
+					$note->message = strip_tags($note->message);
+				}
+				else
+				{
+					$note->message = str_replace('</p><p> </p><p>', '<br /><br />', $note->message);
+					$note->message = str_replace(array('<div><p>','</p></div>', '<p>'), '', $note->message);
+					$note->message = str_replace('</p>', '<br />', $note->message);
+					$note->message = '<p>' . $note->message . '</p>';
+					
+// 					$note->message = '<p>' . str_replace(array(
+// 							'<div><p>','</p></div>', '<p> </p>', '<p></p>'
+// 					), '', $note->message) . '</p>';
+				}
 				
 				return $note;
 				
@@ -404,12 +569,76 @@ class Jumpage
 			}
 		}
 		
-		return false;
+		return (object) array(
+			'id' => strval($fbNoteId),
+			'subject' => 'Note not found',
+			'message' => 'The note ' . $fbNoteId . ' could not be found.'
+		);
 	}
 	
 	public function getQuestion($fbQuestionId)
 	{
 	
+	}
+	
+	public function getOpeningTimes()
+	{
+		/*
+		 "hours": {
+		    "mon_1_open": "10:00",
+		    "mon_1_close": "19:00",
+		    "tue_1_open": "10:00",
+		    "tue_1_close": "19:00",
+		    "wed_1_open": "10:00",
+		    "wed_1_close": "19:00",
+		    "thu_1_open": "10:00",
+		    "thu_1_close": "19:00",
+		    "fri_1_open": "10:00",
+		    "fri_1_close": "19:00",
+		    "sat_1_open": "10:00",
+		    "sat_1_close": "18:00"
+		  }
+		*/
+		
+		$open = array(
+			'day' => array(),
+			'time' => array(),
+			'val' => array()
+		);
+		
+		if(!empty($this->profile['hours']))
+		{
+			$times = array();
+			$days = array();
+			
+			foreach($this->profile['hours'] as $key => $value)
+			{
+				$bits = explode('_', $key);
+				if($bits[1] == '1')
+				{
+					$days[$bits[0]][] = $value;
+				}
+			}
+			
+			foreach($days as $key => $value)
+			{
+				$open['day'][$key] = implode(' - ', $value);
+			}
+			
+			foreach($open['day'] as $key => $value)
+			{
+				$valkey = md5($value);
+				$times[$valkey][] = $key;
+				$open['val'][$valkey] = $value;
+			}
+			
+			foreach($times as $key => $value)
+			{
+				$open['time'][$key] = implode(', ', $value) . '|' . $open['val'][$key];
+			}
+		}
+		
+		return $open;
 	}
 	
 	public function getField($fbFieldName, $default='', $prefix='', $suffix='', $nlbr=false)
@@ -425,11 +654,11 @@ class Jumpage
 		}
 		else
 		{
-			$data = (array) @json_decode(
-				$this->url_get_contents($this->_cfg->defaultGraphUrl
+			$data = (array) $this->url_get_contents(
+				$this->_cfg->defaultGraphUrl
 					. $this->_cfg->fbUserName . '?fields='
 					. $fbFieldName . '&access_token='
-					. $this->_cfg->accessToken)
+					. $this->_cfg->accessToken
 			);
 		}
 		
@@ -466,37 +695,32 @@ class Jumpage
 		if($this->_cfg->accessToken != '')
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
-				. $this->_cfg->accessToken . '&format=json-strings&q=' . urlencode($query);
+				. $this->_cfg->accessToken . '&format=json-strings&q='
+				. urlencode($query);
 			
-			if($result = @$this->url_get_contents($url))
+			if($result = $this->url_get_contents($url))
 			{
-				if($result = json_decode($result))
-				{
-					return $result->data;
-				}
+				return $result->data;
 			}
 			
 		}
 		
-		if($this->_cfg->fqlProxyUrl != '')
-		{
-			$referer = $_SERVER['SERVER_NAME'];
-			$options = array('http' => array(
-				'header'=>array("Referer: $referer\r\n")
-			));
+// 		if($this->_cfg->fqlProxyUrl != '')
+// 		{
+// 			$referer = $_SERVER['SERVER_NAME'];
+// 			$options = array('http' => array(
+// 				'header'=>array("Referer: $referer\r\n")
+// 			));
 			
-			$context = stream_context_create($options);
-			$url = $this->_cfg->fqlProxyUrl . '?q=' 
-				. urlencode($query);
+// 			$context = stream_context_create($options);
+// 			$url = $this->_cfg->fqlProxyUrl . '?q=' 
+// 				. urlencode($query);
 			
-			if($result = @$this->url_get_contents($url, false, $context))
-			{
-				if($result = json_decode($result))
-				{
-					return $result->data;
-				}
-			}
-		}
+// 			if($result = @$this->url_get_contents($url, false, $context))
+// 			{
+// 				return $result->data;
+// 			}
+// 		}
 		
 		return array();
 	}
@@ -510,17 +734,21 @@ class Jumpage
 // 			. '&grant_type=client_credentials');
 // 	}
 	
-	public static function loadCache()
+	public static function loadCache($error='')
 	{
-		try
-		{
-			exit(file_get_contents(CACHE_FILE_NAME));
-		}
-		catch (Exception $e)
-		{
-			exit('An error occured');
-		}
+// 		try
+// 		{
+			if(file_exists(CACHE_FILE_NAME))
+			{
+				exit(file_get_contents(CACHE_FILE_NAME));
+			}
+// 		}
+// 		catch (Exception $e)
+// 		{
+// 			exit('Unable to load cached file ' . $error);
+// 		}
 		
+		exit('Unable to load cached file ' . $error);
 	}
 	
 	public function run($template)
@@ -528,7 +756,21 @@ class Jumpage
 		require_once $template;
 	}
 	
-	public function url_get_contents($url, $use_include_path=false, $context=null)
+	private function _bool($value)
+	{
+		$value = strtolower(strval($value));
+		
+		if(strlen($value) > 3)
+		{
+			$value = ini_get($value);
+		}
+		
+		return in_array(trim($value), array(
+			'yes', 'true', 'on', '1'
+		));
+	}
+	
+	public function url_get_contents($url, $use_include_path=false, $context=null, $debug=false)
 	{
 		if(strpos($url, '?') === false)
 		{
@@ -539,24 +781,61 @@ class Jumpage
 			$url .= '&format=json-strings';
 		}
 		
-	    if (!function_exists('curl_init'))
+		$contents = '';
+		
+// 	    if(function_exists('url_get_contents'))
+// 	    {
+	    	if($this->_bool('allow_url_fopen'))
+	    	{
+	    		$contents = @file_get_contents($url, $use_include_path, $context);
+	    	}
+// 	    }
+		
+	    if($contents == '')
 	    {
-	    	return file_get_contents($url, $use_include_path, $context);
+	    	if(isset($this->_cfg->fbNoneSecureUrlOnly))
+	    	{
+	    		if($this->_cfg->fbNoneSecureUrlOnly)
+	    		{
+	    			$url = str_replace('https:', 'http', $url); // Some hosting provider do not support secure curl
+	    		}
+	    	}
+	    	
+	    	$c = curl_init();
+	    	 
+	    	curl_setopt ($c, CURLOPT_CONNECTTIMEOUT, 10);
+	    	curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+	    	curl_setopt($c, CURLOPT_URL, $url);
+	    	 
+	    	$contents = curl_exec($c);
+	    	$err  = curl_getinfo($c, CURLINFO_HTTP_CODE);
+	    	 
+	    	curl_close($c);
 	    }
 	    
-		$ch = curl_init();
+	    if($contents != '')
+	    {
+	    	if($contents = json_decode($contents))
+	    	{
+	    		if(isset($contents->error))
+	    		{
+	    			$err_type = $contents->error->type; // Mostly OAuthException
+	    			$err_msg = $contents->error->message;
+	    			
+// 	    			$this->loadCache(
+// 	    				$err_type . ' (' . $err_msg . ')'
+// 	    			);
+	    			
+	    			return false;
+	    		}
+	    		else
+	    		{
+	    			return $contents;
+	    		}
+	    	}
+	    }
 		
-		$timeout = 5; // zero for no timeout
-		
-		curl_setopt ($ch, CURLOPT_URL, $url);
-		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-		
-		$content = curl_exec($ch);
-		
-		curl_close($ch);
-	    
-		return $content;
+	    return false;
 	}
 	
 	
@@ -607,6 +886,21 @@ class Jumpage
 		$height = 0;
 		
 		return $height;
+	}
+	
+	private function _url()
+	{
+		if(isset($_ENV['SCRIPT_URI']))
+		{
+			$bits = parse_url($_ENV['SCRIPT_URI']);
+			$url = $bits['host'];
+		}
+		else
+		{
+			$url = $_SERVER['HTTP_HOST'];
+		}
+		
+		return $url;
 	}
 	
 }

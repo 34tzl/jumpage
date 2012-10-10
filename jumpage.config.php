@@ -28,8 +28,10 @@ $config = array(
 	'fbWallId' => '', /* YOUR FACEBOOK WALL ID */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID */
 	'fbUserName' => '', /* YOUR FACEBOOK USER NAME */
-	'fbDaysBack' => 90,
+	'fbDaysBack' => 30,
 	'fbMaxPosts' => 5,
+	'fbMinPostLen' => 0,
+	'fbMaxPostLen' => 210,
 	'googlePlacesLink' => '',
 	'template' => 'jumpage.phtml'
 );
