@@ -25,13 +25,15 @@
  */
 $config = array(
 	'accessToken' => '', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
-	'fbWallId' => '', /* YOUR FACEBOOK WALL ID */
-	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID */
-	'fbUserName' => '', /* YOUR FACEBOOK USER NAME */
+	'fbWallId' => '', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
+	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID e.g. 85329 */
+	'fbUserName' => '', /* THE FACEBOOK USER NAME OF THE PAGE e.g.jumpage OR WALL ID  */
+	'fbLocale' => 'en_US',
 	'fbDaysBack' => 30,
-	'fbMaxPosts' => 5,
+	'fbMaxPosts' => 9,
 	'fbMinPostLen' => 0,
-	'fbMaxPostLen' => 210,
-	'googlePlacesLink' => '',
-	'template' => 'jumpage.phtml'
+	'fbMaxPostLen' => 240,
+	'template' => 'jumpage.phtml',
+	'googlePlacesLink' => '', // e.g. http://goo.gl/maps/5Gnko
+	'googleAnalyticsWebpropertyId' => '' // UA-XXXXXXXX-X
 );

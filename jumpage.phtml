@@ -24,77 +24,149 @@
  *  
  */
 ?><!DOCTYPE html>
-<!--[if lt IE 7 ]><html lang="en" class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html lang="en" class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html lang="en" class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html lang="en" class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--><html lang="en" class="no-js"><!--<![endif]-->
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]-->
 <head prefix="og: http://ogp.me/ns#">
 <meta charset="UTF-8" />
 <title><?= $this->getField('name', 'New jumpage at work') ?></title>
 <?= $this->getField('about', '', '<meta name="description" content="', '" />') ?>
 
+
 <meta name="generator" content="<?= $this->version ?>" />
+
 <meta property="og:title" content="<?= $this->getField('name') ?>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<?= 'http://' . $url . '/' ?>" />
-<meta property="og:image" content="<?= 'http://' . $url . '/facebook-link-icon.jpg' ?>" />
+<meta property="og:url" content="<?= 'http://' . $this->baseurl . '/' ?>" />
+<meta property="og:image" content="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
 <?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
-<link rel="apple-touch-icon" href="<?= 'http://' . $url . '/apple-touch-icon.png' ?>" />
-<link rel="image_src" href="<?= 'http://' . $url . '/facebook-link-icon.jpg' ?>" />
-<link rel="shortcut icon" href="<?= 'http://' . $url . '/favicon.ico' ?>" />
+<link rel="apple-touch-icon" href="<?= 'http://' . $this->baseurl . '/apple-touch-icon.png' ?>" />
+<link rel="image_src" href="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
+<link rel="shortcut icon" href="<?= 'http://' . $this->baseurl . '/favicon.ico' ?>" />
 <link rel="stylesheet" href="common/jumpage.css" />
-<!--[if lt IE 9]><script src="common/modernizr-2.5.3.min.js"></script><![endif]-->
+<script src="common/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
+<!--[if lt IE 7]><p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p><![endif]-->
 
-<header></header>
-
-<?= $this->getField('about', '', '<section class="decription">', '"</section>') ?>
-
-<section class="images">
-<?php foreach($this->images as $image) { ?>
-<div class="image"></div>
+<header>
+<div class="pdg">
+<?= $this->getField('name', '', '<h1 class="t-large">', '</h1>') ?>
+<?= $this->getField('categories', '', '<h2 class="t-large c-dark">', '</h2>') ?>
+<?php if($cover = $this->getImage($this->profile['cover']->cover_id)) { ?>
+</div>
+<figure class="cover"><img 
+class="ir fit" src="<?= $cover->src 
+?>" width="<?= $cover->width 
+?>" height="<?= $cover->height 
+?>" alt="<?= $cover->alt 
+?>" />
+<?= $this->getField('about', '', '<figcaption class="pdg"><p class="t-medium">', '</p></figcaption>') ?>
+</figure>
+<?php } else { ?>
+<?= $this->getField('about', '', '<div class="pdg"><p class="t-medium">', '</p></div>') ?>
 <?php } ?>
-</section>
+</header>
 
-<section class="posts">
-<?php foreach($this->posts as $post) { ?>
-<div class="post"></div>
+<?php if(count($this->posts) > 0) { ?>
+<section class="wall">
+<div class="tbl">
+<div class="row">
+<div class="col">
+<?php foreach($this->posts as $post) { if($post->colnum == 0) { ?>
+<div class="spacer mgr">
+<?php if($post->image !== false) { ?>
+<div class="postimg">
+<a href="<?= htmlentities($post->href) 
+?>"><img class="fit" src="<?= $post->image->src 
+?>" width="<?= $post->image->width 
+?>" height="<?= $post->image->height 
+?>" alt="" /></a></div>
 <?php } ?>
+<?php if($post->message !== '') { ?>
+<div class="pdg"><p class=" t-small">
+<?= $post->message ?> <a href="<?= htmlentities($post->href) 
+?>">Mehr auf Facebook...</a></p></div><?php } ?>
+</div>
+<?php }} ?>
+</div>
+<div class="col pdl">
+<?php foreach($this->posts as $post) { if($post->colnum == 1) { ?>
+<div class="spacer mgl">
+<?php if($post->image !== false) { ?>
+<div class="postimg">
+<a href="<?= htmlentities($post->href) 
+?>"><img class="fit" src="<?= $post->image->src 
+?>" width="<?= $post->image->width 
+?>" height="<?= $post->image->height 
+?>" alt="" /></a></div>
+<?php } ?>
+<?php if($post->message !== '') { ?>
+<div class="pdg"><p class=" t-small">
+<?= $post->message ?> <a href="<?= htmlentities($post->href) 
+?>">Mehr auf Facebook...</a></p></div><?php } ?>
+</div>
+<?php }} ?>
+</div>
+</div>
+</div>
 </section>
+<?php } ?>
 
-<section class="events"></section>
+<?= $this->getField('description', '', '<section class="pdg"><p class="t-medium">', '</p></section>') ?>
 
-<!--section class="maps"><div id="map"></div></section-->
+<footer>
+<div class="cntr">
+<div class="tbl">
+<div class="row">
+<div class="col vcard" id="hcard">
+<div class="pdg t-small c-light"><a title="<?= $this->getField('name') 
+?>" class="url org t-small c-light bold" href="<?= $this->getField('website', '', 'http://', '/') 
+?>" rel="bookmark"><?= $this->getField('name') ?></a>
+<div class="adr">
+	<?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 
+	?> <?= $this->getField('zip', '', '<span class="postal-code">', '</span>') 
+	?> <?= $this->getField('city', '', '<span class="locality">', '</span>')
+	?> <?= $this->getField('country', '', '<span class="country-name">', '</span>')
+	?>
+</div>
+<div class="pdt">
+	<?= $this->getField('phone', '', '<span class="tel"><span class="type">Work</span> <span class="type">Voice</span> T <span class="value" title="', '">') 
+	?><?= $this->getField('phone', '', '', '</span></span>') ?>
+</div>
+</div></div>
+<div class="col"><!--div class="t-small mrg cnt"></div--></div>
+</div>
+</div>
 
-<footer></footer>
+<div class="buttons noprint"><a title="Folge <?=  $this->getField('name') 
+?> auf Facebook" href="<?= $this->getField('link') 
+?>"><img class="ir" src="common/facebook.png" width="48" height="48" alt="Facebook" /></a><a 
+title="Hi! I am a jumpage" href="http://jumpage.net/"><img class="ir"
+src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a></div>
+<div class="clr noprint"><a href="#top" class="btn t-medium">Nach Oben</a></div>
+</div>
+</footer>
 
 <!--
 This website was built with jumpage Your web concept - A Bureau BLEEN project
 For more information and how to use it, visit jumpage.net
 -->
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-
-<script>!window.jQuery && document.write(unescape(
-'%3Cscript src="common/jquery-1.8.0.min.js"%3E%3C/script%3E'));</script>
-
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <!--script src="//maps.google.com/maps/api/js?sensor=false"></script-->
-
+<script>!window.jQuery && document.write(unescape('%3Cscript '
++ 'src="common/jquery-1.8.2.min.js"%3E%3C/script%3E'))</script>
 <script src="common/jumpage.js"></script>
-
-<!--script>
-var _gaq = [['_setAccount', 'UA-XXXXXXXX-X'], ['_gat._anonymizeIp'], ['_trackPageview']];
-(function(d, t){
-	var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
-	g.async = true;
-	g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www')
-	+ '.google-analytics.com/ga.js';
-	s.parentNode.insertBefore(g, s);
-})(document, 'script');
-</script-->
-
+<?php if(!empty($this->_cfg->googleAnalyticsWebpropertyId)) { ?>
+<script>
+var _gaq = [['_setAccount', '<?= $this->_cfg->googleAnalyticsWebpropertyId ?>'], ['_gat._anonymizeIp'], ['_trackPageview']];
+(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+<?php } ?>
 </body>
 </html>

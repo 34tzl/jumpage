@@ -35,13 +35,20 @@ class Jumpage
 	public $images = array();
 	public $posts = array();
 	
+	public $locale = 'en_US';
+	
 	public $version = 'jumpage Framework 0.9';
 	
 	private $_notes = false;
 	
-	public function __construct($template='')
+	public function __construct($template='', $cfgfile='jumpage.config.php')
 	{
-		require_once "jumpage.config.php";
+		if(!file_exists($cfgfile))
+		{
+			exit('CONFIG FILE NOT FOUND! ' . $cfgfile);
+		}
+		
+		require_once $cfgfile;
 		
 		if(isset($config['template']))
 		{
@@ -59,9 +66,30 @@ class Jumpage
 			}
 		}
 		
-		$this->baseurl = $this->_url();
+		if(!empty($config['fbLocale']))
+		{
+			$this->locale = $config['fbLocale'];
+		}
 		
 		$this->_cfg = (object) $this->_initConfig($config);
+		$this->baseurl = $this->_url();
+		
+		$item = $this->url_get_contents($this->_cfg->secureGraphUrl
+			. $this->_cfg->fbUserName . '/notes?limit=1&access_token='
+			. $this->_cfg->accessToken
+		);
+		
+		if(isset($item->error))
+		{
+			if($item->error->type == 'OAuthException')
+			{
+				exit('PAGE ACCESS TOKEN invalid! Get yours on <a href="http://jumpage.net/app">jumpage.net/app</a>'); // (' . $item->error->message . ')');
+			}
+			else
+			{
+				exit('AN ERROR OCCURRED (' . $item->error->message . ')');
+			}
+		}
 		
 		$this->_initProfile();
 		$this->_initPosts();
@@ -75,11 +103,6 @@ class Jumpage
 			}
 		}
 	}
-	
-// 	public function getConfig()
-// 	{
-// 		return $this->_cfg;
-// 	}
 	
 	private function _initConfig($config)
 	{
@@ -121,6 +144,43 @@ class Jumpage
 			{
 				$this->profile['longitude'] = $this->profile['location']->longitude;
 			}
+		}
+		
+		$basePageFields = 'name, type, website, about, description, phone, categories, hours';
+		
+		if(!empty($this->_cfg->fbInitPageFields))
+		{
+			$basePageFields = trim($this->_cfg->fbInitPageFields);
+		}
+		
+		$fql = 'SELECT ' . $basePageFields . ' FROM page WHERE page_id=' 
+			. $this->_cfg->fbWallId;
+		
+		$items = $this->getByFqlQuery($fql);
+		
+		foreach($items[0] as $key => $value)
+		{
+			$this->profile[$key] = $value;
+		}
+		
+		$this->profile['type'] = mb_strtolower($this->profile['type'], 'UTF-8');
+		$this->profile['type'] = ucwords($this->profile['type']);
+		
+		if(isset($this->profile['categories']))
+		{
+			$helper = '';
+			
+			foreach ($this->profile['categories'] as $category)
+			{
+				if($helper != '')
+				{
+					$helper .= ', ';
+				}
+				
+				$helper .= $category->name;
+			}
+			
+			$this->profile['categories'] = $helper;
 		}
 		
 	}
@@ -194,7 +254,23 @@ class Jumpage
 // 						}
 						
 // 					}
-				}
+				} 
+// 				elseif($media->type == 'link')
+// 				{
+// 					parse_str(parse_url($media->src, PHP_URL_QUERY), $query);
+// 					$src = urldecode($query['url']);
+					
+// 					$image = array();
+// 					$w = $h = 0;
+					
+// 					$image['src'] = $src; //$item[0]->src;
+// 					$image['width'] = $w;;
+// 					$image['height'] = $h;
+// 					$image['alt'] = $media->alt;
+// 					$image['href'] = $media->href;
+					
+// 					break;
+// 				}
 			}
 		}
 		
@@ -204,24 +280,29 @@ class Jumpage
 	private function _initPosts()
 	{
 		/* Stream Types
-			11 - Group created 
-			12 - Event created 
-			46 - Status update 
-			56 - Post on wall from another user 
-			66 - Note created 
-			80 - Link posted 
-			128 - Video posted 
-			247 - Photos posted 
-			237 - App story 
-			272 - App story 
+			 11 - Group created
+			 12 - Event created
+			 46 - Status update
+			 56 - Post on wall from another user
+			 66 - Note created
+			 80 - Link posted
+			128 - Video posted
+			247 - Photos posted
+			237 - App story
+			257 - Comment created
+			272 - App story
+			285 - Checkin to a place
+			308 - Post in Group
 		*/
 		
 		$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
+		$itemLimit = intval($this->_cfg->fbMaxPosts);
 		
 		$fql = "SELECT type, created_time, message, description, attachment, permalink FROM stream "
-		. "WHERE (type=46 OR type=80 OR type=247) AND source_id='"
+		. "WHERE post_id IN(SELECT post_id FROM stream WHERE type IN(46,80,247) AND NOT is_hidden "
+		. "AND source_id='"
 		. $this->_cfg->fbWallId . "' AND actor_id='"
-		. $this->_cfg->fbWallId . "' AND is_hidden=0 AND created_time > "
+		. $this->_cfg->fbWallId . "' AND created_time > "
 		. $timeLimit;
 		
 		if(isset($this->_cfg->fbMinPostLen))
@@ -229,14 +310,16 @@ class Jumpage
 			if(intval($this->_cfg->fbMinPostLen) > 0)
 			{
 				$fql .= " AND strlen(message) >= " . intval($this->_cfg->fbMinPostLen);
-				
-// 				$fql .= " AND (strlen(message) >= " . intval($this->_cfg->fbMinPostLen);
-// 				$fql .= " OR strlen(description) >= " . intval($this->_cfg->fbMinPostLen) . ")";
 			}
 		}
 		
-		$fql .= " ORDER BY created_time DESC LIMIT " . $this->_cfg->fbMaxPosts;
-
+		$fql .= ") ORDER BY created_time DESC";
+		
+		if($itemLimit > 0)
+		{
+			$fql .= " LIMIT " . $itemLimit;
+		}
+		
 		$items = $this->getByFqlQuery($fql);
 		
 		$colheight = array(0,0);
@@ -327,6 +410,14 @@ class Jumpage
 					'height' => $height,
 					'colnum' => $colnum
 				);
+				
+// 				if($itemLimit > 0)
+// 				{
+// 					if(count($this->posts) >= $itemLimit)
+// 					{
+// 						break;
+// 					}
+// 				}
 			}
 		}
 		
@@ -403,16 +494,66 @@ class Jumpage
 		return $albums;
 	}
 	
-	public function getEvents()
+	public function getEvents($shortdesc=2, $sortdesc=true, $fields='id,name,description,start_time,location,picture.type(large)')
 	{
+		$events = array();
+		
 		if($this->_cfg->accessToken != '')
 		{
-			$events = $this->url_get_contents(
+			$items = $this->url_get_contents(
 				$this->_cfg->secureGraphUrl
-					. $this->_cfg->fbUserName . '/events?access_token='
+					. $this->_cfg->fbUserName . '/events?fields=' 
+					. $fields . '&access_token='
 					. $this->_cfg->accessToken
 			);
+			
+			foreach($items->data as $event)
+			{
+				$datetime = strtotime($event->start_time);
+				$imgsrc = $event->picture->data->url;
+				$imginfo = getimagesize($imgsrc);
+				
+				$picture = (object) array(
+					'src' => $imgsrc,
+					'width' => $imginfo[0],
+					'height' => $imginfo[1]
+				);
+				
+				$description = $event->description;
+				
+				if($shortdesc > 0)
+				{
+					$bits = explode(PHP_EOL, $description);
+					
+					$description = '';
+					
+					for($i=0; $i<$shortdesc; $i++)
+					{
+						$description .= $bits[$i];
+					}
+					
+					$description = $this->_tidyFacebookMessage($description);
+				}
+				
+				$events[$datetime] = (object) array(
+					'id' => $event->id,
+					'name' => $event->name,
+					'description' => $description,
+					'location' => $event->location,
+					'datetime' => $datetime,
+					'picture' => $picture,
+					'link' => 'http://www.facebook.com/' . $event->id
+				);
+				
+				if($sortdesc)
+				{
+					ksort($events);
+				}
+				
+			}
 		}
+		
+		return $events;
 	}
 	
 // 	public function getPosts()
@@ -420,7 +561,7 @@ class Jumpage
 	
 // 	}
 	
-	public function getImages($aid='', $order='created DESC', $limit=9)
+	public function getImages($aid='', $order='created DESC', $limit=9, $width=940)
 	{
 		if($aid == '')
 		{
@@ -431,8 +572,31 @@ class Jumpage
 // 		$fql = "SELECT src, width, height FROM photo_src WHERE width > 960 "
 // 			. "AND photo_id IN(SELECT object_id FROM photo WHERE aid='" . $aid . "')";
 		
+		$albumtypes = array(
+			'profile',
+			'mobile',
+			'wall'
+		);
+		
+		if(in_array($aid, $albumtypes))
+		{
+			$fql = "SELECT aid FROM album WHERE type='" . $aid . "' AND owner='" 
+				. $this->_cfg->fbWallId . "' LIMIT 1";
+			
+			$item = $this->getByFqlQuery($fql);
+			$aid = $item[0]->aid;
+		}
+		
 		$fql = "SELECT pid, object_id, link, caption FROM photo WHERE aid='" 
-			. $aid . "' ORDER BY " . $order; // created, position
+			. $aid . "'";
+		
+		if($aid == 'wall')
+		{
+			$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
+			$fql .= " AND created > " . $timeLimit;
+		}
+		
+		 $fql .= " ORDER BY " . $order; // created, position
 		
 		if($limit > 0)
 		{
@@ -447,6 +611,7 @@ class Jumpage
 		foreach($items as $item)
 		{
 			$helper[$item->object_id] = (object) array(
+				'pid' => $item->pid,
 				'link' => $item->link,
 				'caption' => $item->caption,
 				'src' => '',
@@ -463,7 +628,7 @@ class Jumpage
 		}
 		
 		$fql = 'SELECT photo_id, src, width, height FROM photo_src '
-			. 'WHERE width > 960 AND photo_id IN(' . $where . ')';
+			. 'WHERE width > ' . $width . ' AND photo_id IN(' . $where . ')';
 		
 		$items = $this->getByFqlQuery($fql);
 		$images = array();
@@ -535,7 +700,7 @@ class Jumpage
 		return false;
 	}
 	
-	public function getNote($fbNoteId, $stripTags=false)
+	public function getNote($fbNoteId, $stripTags=false, $lineBreaks=false)
 	{
 		if($this->_notes === false)
 		{
@@ -546,6 +711,8 @@ class Jumpage
 		{
 			if($note->id == $fbNoteId)
 			{
+				$note->message = $this->_replaceSpecialCharacters($note->message);
+				
 				if($stripTags==true)
 				{
 					$note->message = preg_replace('/<\/p>?.<p>/i', "\n", $note->message);
@@ -562,6 +729,13 @@ class Jumpage
 // 							'<div><p>','</p></div>', '<p> </p>', '<p></p>'
 // 					), '', $note->message) . '</p>';
 				}
+				
+				if($lineBreaks)
+				{
+					$note->message = nl2br($note->message);
+				}
+				
+				$note->message = preg_replace('/\s+/', ' ', $note->message);
 				
 				return $note;
 				
@@ -664,7 +838,14 @@ class Jumpage
 		
 		if(empty($data[$fbFieldName]))
 		{
-			return $prefix . $default . $suffix;
+			if($default != '')
+			{
+				return $prefix . $default . $suffix;
+			}
+			else
+			{
+				return '';
+			}
 		}
 		
 		$value = trim($data[$fbFieldName]);
@@ -781,8 +962,11 @@ class Jumpage
 			$url .= '&format=json-strings';
 		}
 		
+		$url .= '&locale=' .  $this->locale;
+		
 		$contents = '';
 		
+		try {
 // 	    if(function_exists('url_get_contents'))
 // 	    {
 	    	if($this->_bool('allow_url_fopen'))
@@ -813,10 +997,22 @@ class Jumpage
 	    	curl_close($c);
 	    }
 	    
+	    } catch (Exception $e) {
+	    	$error = (object) array('error' => (object) array(
+	    		'message' => $e->message,
+	    		'type' => 'LoadFromUrlException',
+	    		'code' => 312
+	    	));
+	    	
+	    	$contents = json_encode($error);
+	    }
+	    
 	    if($contents != '')
 	    {
 	    	if($contents = json_decode($contents))
 	    	{
+	    		return $contents;
+	    		
 	    		if(isset($contents->error))
 	    		{
 	    			$err_type = $contents->error->type; // Mostly OAuthException
@@ -838,11 +1034,69 @@ class Jumpage
 	    return false;
 	}
 	
+	private function _replaceSpecialCharacters($str)
+	{
+// 		$str = str_replace(array(
+// 			"\xe2\x80\x98", "\xe2\x80\x99", "\xe2\x80\x9c", "\xe2\x80\x9d", "\xe2\x80\x93", "\xe2\x80\x94", "\xe2\x80\xa6"
+// 		), array("'", "'", '"', '"', '-', '--', '...'), $str);
+		
+// 		$str = str_replace(array(
+// 			chr(145), chr(146), chr(147), chr(148), chr(150), chr(151), chr(133)), array(
+// 			"'", "'", '"', '"', '-', '--', '...'), $str);
+		
+// 		return htmlentities($str, ENT_QUOTES, 'utf-8');
+		
+// 		$str = iconv('UTF-8', 'UTF-8//IGNORE//TRANSLIT', $str);
+		
+		
+		$search  = array('&acirc;€“','&acirc;€œ','&acirc;€˜','&acirc;€™','&Acirc;&pound;','&Acirc;&not;','&acirc;„&cent;');
+		$replace = array('-','&ldquo;','&lsquo;','&rsquo;','&pound;','&not;','&#8482;');
+		
+		$str = str_replace($search, $replace, $str);
+		$str = str_replace('&acirc;€', '&rdquo;', $str);
+		
+		$search = array("&#39;", "\xc3\xa2\xc2\x80\xc2\x99", "\xc3\xa2\xc2\x80\xc2\x93", "\xc3\xa2\xc2\x80\xc2\x9d", "\xc3\xa2\x3f\x3f");
+		$resplace = array("'", "'", ' - ', '"', "'");
+		
+		$str = str_replace($search, $replace, $str);
+		
+		$quotes = array(
+				"\xC2\xAB"     => '"',
+				"\xC2\xBB"     => '"',
+				"\xE2\x80\x98" => "'",
+				"\xE2\x80\x99" => "'",
+				"\xE2\x80\x9A" => "'",
+				"\xE2\x80\x9B" => "'",
+				"\xE2\x80\x9C" => '"',
+				"\xE2\x80\x9D" => '"',
+				"\xE2\x80\x9E" => '"',
+				"\xE2\x80\x9F" => '"',
+				"\xE2\x80\xB9" => "'",
+				"\xE2\x80\xBA" => "'",
+				"\xe2\x80\x93" => "-",
+				"\xc2\xb0"	   => "°",
+				"\xc2\xba"     => "°",
+				"\xc3\xb1"	   => "&#241;",
+				"\x96"		   => "&#241;",
+				"\xe2\x81\x83" => '&bull;',
+				"\xd5" => "'",
+				"\xe2\x80\xa6" => "..."
+		);
+		
+		$str = strtr($str, $quotes);
+		
+		$str = utf8_encode(
+			str_replace("\xA0", " ", utf8_decode($str)
+		));
+		
+		return trim($str);
+	}
 	
 	private function _tidyFacebookMessage($message)
 	{
-		$message = strip_tags($message);
+		$message = utf8_encode(str_replace("\xA0", " ", utf8_decode($message)));
 		$message = preg_replace('/\s+/', ' ', $message);
+		$message = strip_tags($message);
 		
 		$message = str_replace(array(
 			'&', '> <'
@@ -890,17 +1144,16 @@ class Jumpage
 	
 	private function _url()
 	{
+		$host = $_SERVER['HTTP_HOST'];
+		
 		if(isset($_ENV['SCRIPT_URI']))
 		{
-			$bits = parse_url($_ENV['SCRIPT_URI']);
-			$url = $bits['host'];
-		}
-		else
-		{
-			$url = $_SERVER['HTTP_HOST'];
+			$host = parse_url(
+				$_ENV['SCRIPT_URI'], PHP_URL_HOST
+			);
 		}
 		
-		return $url;
+		return $host;
 	}
 	
 }

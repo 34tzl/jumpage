@@ -23,7 +23,20 @@
  *  Token on jumpage.net/app
  *  
  */
-define('CACHE_FILE_NAME', 'jumpage.cachefile.htm');
+if(!defined('JUMPAGE_CONFIG_PATH'))
+{
+	define('JUMPAGE_CONFIG_PATH', 'jumpage.config.php');
+}
+
+if(!defined('JUMPAGE_TEMPLATE_PATH'))
+{
+	define('JUMPAGE_TEMPLATE_PATH', 'jumpage.phtml');
+}
+
+$cache_file_name = rtrim(dirname(JUMPAGE_CONFIG_PATH), '/')
+	. '/jumpage.cachefile.htm';
+
+define('CACHE_FILE_NAME', $cache_file_name);
 define('CACHE_EXPIRE_MINUTES', 12*60);
 
 header('Content-Type: text/html; charset=utf-8');
@@ -60,7 +73,7 @@ if($loadCacheFile)
 
 require_once "jumpage.library.php";
 
-$jp = new Jumpage('jumpage.phtml');
+$jp = new Jumpage(JUMPAGE_TEMPLATE_PATH, JUMPAGE_CONFIG_PATH);
 
 if(file_exists(CACHE_FILE_NAME))
 {
