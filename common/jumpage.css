@@ -628,13 +628,13 @@ h1, h2, h3, p {
 }
 
 ::selection {
-	background: #0000ff;
+	background: rgb(16,156,217);
 	text-shadow: none;
 	color: #fff;
 }
 
 ::-moz-selection {
-	background: #0000ff;
+	background: rgb(16,156,217);
 	text-shadow: none;
 	color: #fff;
 }
@@ -648,7 +648,7 @@ a, a:active, a:visited {
 	color: rgb(153,153,153);
 }
 a:hover {
-	color: #0000ff;
+	color: rgb(16,156,217);
 }
 
 .t-large {
@@ -732,6 +732,10 @@ a:hover {
 	padding-top: 1.5em;
 }
 
+.pdb {
+	padding-bottom: 1.5em;
+}
+
 footer {
 	background: rgb(48,48,48);
 	padding-bottom: 1.5em;
@@ -757,7 +761,7 @@ footer a:hover {
 	height: auto;
 }
 
-.btn {
+a.btn {
 	display: block;	
 	background: rgb(153,153,153);
 	text-align: center;
@@ -766,7 +770,7 @@ footer a:hover {
 }
 
 .btn:hover {
-	background: #0000ff;
+	background: rgb(16,156,217);
 	color: #fff;
 }
 

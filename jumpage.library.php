@@ -502,7 +502,7 @@ class Jumpage
 		{
 			$items = $this->url_get_contents(
 				$this->_cfg->secureGraphUrl
-					. $this->_cfg->fbUserName . '/events?fields=' 
+					. $this->_cfg->fbUserName . '/events?since=now&fields=' 
 					. $fields . '&access_token='
 					. $this->_cfg->accessToken
 			);
