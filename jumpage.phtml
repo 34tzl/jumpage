@@ -115,7 +115,7 @@ class="ir fit" src="<?= $cover->src
 </section>
 <?php } ?>
 
-<?= $this->getField('description', '', '<section class="pdg"><p class="t-medium">', '</p></section>') ?>
+<?= $this->getField('description', '', '<section><div class="pdg"><p class="t-medium">', '</p></div></section>') ?>
 
 <footer>
 <div class="cntr">
@@ -126,11 +126,11 @@ class="ir fit" src="<?= $cover->src
 ?>" class="url org t-small c-light bold" href="<?= $this->getField('website', '', 'http://', '/') 
 ?>" rel="bookmark"><?= $this->getField('name') ?></a>
 <div class="adr">
-	<?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 
-	?> <?= $this->getField('zip', '', '<span class="postal-code">', '</span>') 
-	?> <?= $this->getField('city', '', '<span class="locality">', '</span>')
-	?> <?= $this->getField('country', '', '<span class="country-name">', '</span>')
-	?>
+<?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 
+?> <?= $this->getField('zip', '', '<span class="postal-code">', '</span>') 
+?> <?= $this->getField('city', '', '<span class="locality">', '</span>')
+?> <?= $this->getField('country', '', '<span class="country-name">', '</span>')
+?>
 </div>
 <div class="pdt">
 	<?= $this->getField('phone', '', '<span class="tel"><span class="type">Work</span> <span class="type">Voice</span> T <span class="value" title="', '">') 
