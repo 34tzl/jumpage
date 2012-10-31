@@ -1048,12 +1048,12 @@ class Jumpage
 		
 // 		$str = iconv('UTF-8', 'UTF-8//IGNORE//TRANSLIT', $str);
 		
+// 		$str = htmlentities($str, 0, 'UTF-8');
 		
 		$search  = array('&acirc;€“','&acirc;€œ','&acirc;€˜','&acirc;€™','&Acirc;&pound;','&Acirc;&not;','&acirc;„&cent;');
 		$replace = array('-','&ldquo;','&lsquo;','&rsquo;','&pound;','&not;','&#8482;');
 		
 		$str = str_replace($search, $replace, $str);
-		$str = str_replace('&acirc;€', '&rdquo;', $str);
 		
 		$search = array("&#39;", "\xc3\xa2\xc2\x80\xc2\x99", "\xc3\xa2\xc2\x80\xc2\x93", "\xc3\xa2\xc2\x80\xc2\x9d", "\xc3\xa2\x3f\x3f");
 		$resplace = array("'", "'", ' - ', '"', "'");
@@ -1085,16 +1085,18 @@ class Jumpage
 		
 		$str = strtr($str, $quotes);
 		
-		$str = utf8_encode(
-			str_replace("\xA0", " ", utf8_decode($str)
-		));
+// 		$str = utf8_encode(
+// 			str_replace("\xA0", " ", utf8_decode($str)
+// 		));
+		
+		$str = preg_replace('/\xC2\xA0/','',$str);
 		
 		return trim($str);
 	}
 	
 	private function _tidyFacebookMessage($message)
 	{
-		$message = utf8_encode(str_replace("\xA0", " ", utf8_decode($message)));
+		$message = $this->_replaceSpecialCharacters($message);
 		$message = preg_replace('/\s+/', ' ', $message);
 		$message = strip_tags($message);
 		
