@@ -58,9 +58,9 @@ class Jumpage
 			}
 		}
 		
-		if(isset($config['accessToken']))
+		if(isset($config['fbAccessToken']))
 		{
-			if(strlen(trim($config['accessToken'])) < 9)
+			if(strlen(trim($config['fbAccessToken'])) < 9)
 			{
 				exit('PAGE ACCESS TOKEN required! Get yours on <a href="http://jumpage.net/app">jumpage.net/app</a>');
 			}
@@ -76,7 +76,7 @@ class Jumpage
 		
 		$item = $this->url_get_contents($this->_cfg->secureGraphUrl
 			. $this->_cfg->fbUserName . '/notes?limit=1&access_token='
-			. $this->_cfg->accessToken
+			. $this->_cfg->fbAccessToken
 		);
 		
 		if(isset($item->error))
@@ -108,6 +108,16 @@ class Jumpage
 	{
 		$config['defaultGraphUrl'] = 'http://graph.facebook.com/';
 		$config['secureGraphUrl'] = 'https://graph.facebook.com/';
+		
+		$config['fbUserName'] = $config['fbWallId'];
+		
+		if(empty($config['fbAccessToken']))
+		{
+			if(!empty($config['accessToken']))
+			{
+				$config['fbAccessToken'] = $config['accessToken'];
+			}
+		}
 		
 		return $config;
 	}
@@ -197,7 +207,7 @@ class Jumpage
 		
 // 		$this->images = $this->url_get_contents($this->_cfg->defaultGraphUrl 
 // 			. $this->_cfg->fbAlbumId . '/photos' /* . '?access_token=' 
-// 			. $this->_cfg->accessToken*/);
+// 			. $this->_cfg->fbAccessToken*/);
 	}
 	
 	private function _getPostImage($attachment)
@@ -494,18 +504,33 @@ class Jumpage
 		return $albums;
 	}
 	
-	public function getEvents($shortdesc=2, $sortdesc=true, $fields='id,name,description,start_time,location,picture.type(large)')
+	public function getEvents(
+			$shortdesc=2, 
+			$sortdesc=true, 
+			$sincenow=true, 
+			$limit=10, 
+			$fields='id,name,description,start_time,location,picture.type(large)')
 	{
 		$events = array();
 		
-		if($this->_cfg->accessToken != '')
+		if($this->_cfg->fbAccessToken != '')
 		{
-			$items = $this->url_get_contents(
-				$this->_cfg->secureGraphUrl
-					. $this->_cfg->fbUserName . '/events?since=now&fields=' 
-					. $fields . '&access_token='
-					. $this->_cfg->accessToken
-			);
+			$url = $this->_cfg->secureGraphUrl
+				. $this->_cfg->fbUserName . '/events?fields=' 
+				. $fields . '&access_token='
+				. $this->_cfg->fbAccessToken;
+			
+			if($sincenow)
+			{
+				$url .= '&since=now';
+			}
+			
+			if($limit > 0)
+			{
+				$url .= '&limit=' . intval($limit);
+			}
+			
+			$items = $this->url_get_contents($url);
 			
 			foreach($items->data as $event)
 			{
@@ -544,12 +569,15 @@ class Jumpage
 					'picture' => $picture,
 					'link' => 'http://www.facebook.com/' . $event->id
 				);
-				
-				if($sortdesc)
-				{
-					ksort($events);
-				}
-				
+			}
+
+			if($sortdesc)
+			{
+				array_multisort($events, SORT_DESC);
+			}
+			else
+			{
+				array_multisort($events, SORT_ASC);
 			}
 		}
 		
@@ -649,12 +677,12 @@ class Jumpage
 	{
 		$notes = false;
 		
-		if($this->_cfg->accessToken != '')
+		if($this->_cfg->fbAccessToken != '')
 		{
 			$notes = $this->url_get_contents(
 				$this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '/notes?access_token='
-					. $this->_cfg->accessToken
+					. $this->_cfg->fbAccessToken
 			);
 		}
 		
@@ -832,7 +860,7 @@ class Jumpage
 				$this->_cfg->defaultGraphUrl
 					. $this->_cfg->fbUserName . '?fields='
 					. $fbFieldName . '&access_token='
-					. $this->_cfg->accessToken
+					. $this->_cfg->fbAccessToken
 			);
 		}
 		
@@ -873,10 +901,10 @@ class Jumpage
 	
 	public function getByFqlQuery($query)
 	{
-		if($this->_cfg->accessToken != '')
+		if($this->_cfg->fbAccessToken != '')
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
-				. $this->_cfg->accessToken . '&format=json-strings&q='
+				. $this->_cfg->fbAccessToken . '&format=json-strings&q='
 				. urlencode($query);
 			
 			if($result = $this->url_get_contents($url))

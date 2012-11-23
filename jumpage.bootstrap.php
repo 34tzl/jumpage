@@ -37,7 +37,11 @@ $cache_file_name = rtrim(dirname(JUMPAGE_CONFIG_PATH), '/')
 	. '/jumpage.cachefile.htm';
 
 define('CACHE_FILE_NAME', $cache_file_name);
-define('CACHE_EXPIRE_MINUTES', 12*60);
+
+if(!defined('CACHE_EXPIRE_MINUTES'))
+{
+	define('CACHE_EXPIRE_MINUTES', 12*60);
+}
 
 header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');
@@ -84,4 +88,16 @@ file_put_contents(
 	CACHE_FILE_NAME, ob_get_contents()
 );
 
-
+if(!empty($_GET['cache']))
+{
+	$host = $_SERVER['HTTP_HOST'];
+	
+	if(isset($_ENV['SCRIPT_URI']))
+	{
+		$host = parse_url(
+				$_ENV['SCRIPT_URI'], PHP_URL_HOST
+		);
+	}
+	
+	header('Location:http://' . rtrim($host, '/') . '/');
+}

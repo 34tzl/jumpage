@@ -728,6 +728,9 @@ a:hover {
 .plr {
 	padding: 0 1.5em;
 }
+.zpd, .rsp {
+	padding: 1.5em 0;
+}
 .pdt {
 	padding-top: 1.5em;
 }
@@ -735,6 +738,8 @@ a:hover {
 .pdb {
 	padding-bottom: 1.5em;
 }
+
+
 
 footer {
 	background: rgb(48,48,48);
@@ -766,7 +771,7 @@ a.btn {
 	background: rgb(153,153,153);
 	text-align: center;
 	color: #fff;
-	padding: .25em;
+	padding: .375em;
 }
 
 .btn:hover {
@@ -932,6 +937,10 @@ a.btn {
 	
 	.mgr {
 		margin-right: 0;
+	}
+	
+	.rsp {
+		padding: 1.5em;
 	}
 	
 }

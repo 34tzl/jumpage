@@ -52,7 +52,7 @@
 <!--[if lt IE 7]><p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p><![endif]-->
 
 <header>
-<div class="pdg">
+<div class="rsp">
 <?= $this->getField('name', '', '<h1 class="t-large">', '</h1>') ?>
 <?= $this->getField('categories', '', '<h2 class="t-large c-dark">', '</h2>') ?>
 <?php if($cover = $this->getImage($this->profile['cover']->cover_id)) { ?>
@@ -63,10 +63,10 @@ class="ir fit" src="<?= $cover->src
 ?>" height="<?= $cover->height 
 ?>" alt="<?= $cover->alt 
 ?>" />
-<?= $this->getField('about', '', '<figcaption class="pdg"><p class="t-medium">', '</p></figcaption>') ?>
+<?= $this->getField('about', '', '<figcaption class="rsp"><p class="t-medium">', '</p></figcaption>') ?>
 </figure>
 <?php } else { ?>
-<?= $this->getField('about', '', '<div class="pdg"><p class="t-medium">', '</p></div>') ?>
+<?= $this->getField('about', '', '<div class="rsp"><p class="t-medium">', '</p></div>') ?>
 <?php } ?>
 </header>
 
@@ -119,15 +119,15 @@ class="ir fit" src="<?= $cover->src
 </section>
 <?php } ?>
 
-<?= $this->getField('description', '', '<section><div class="pdg"><p class="t-medium">', '</p></div></section>') ?>
+<?= $this->getField('description', '', '<section><div class="rsp"><p class="t-medium">', '</p></div></section>') ?>
 
 <footer>
 <div class="cntr">
 <div class="tbl">
 <div class="row">
-<div class="col vcard" id="hcard">
-<div class="pdg t-small c-light"><a title="<?= $this->getField('name') 
-?>" class="url org t-small c-light bold" href="<?= $this->getField('website', '', 'http://', '/') 
+<div class="col rsp vcard" id="hcard">
+<div class="t-medium c-light"><a title="<?= $this->getField('name') 
+?>" class="url org bold" href="http://<?= str_replace('http://', '', $this->getField('website')) 
 ?>" rel="bookmark"><?= $this->getField('name') ?></a>
 <div class="adr">
 <?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 

@@ -24,10 +24,9 @@
  *  
  */
 $config = array(
-	'accessToken' => '', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
-	'fbWallId' => '', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
+	'fbAccessToken' => '[ACCESS_TOKEN_PLACEHOLDER]', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
+	'fbWallId' => '[WALL_ID_PLACEHOLDER]', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID e.g. 85329 */
-	'fbUserName' => '', /* THE FACEBOOK USER NAME OF THE PAGE e.g.jumpage OR WALL ID  */
 	'fbLocale' => 'en_US',
 	'fbDaysBack' => 30,
 	'fbMaxPosts' => 9,
