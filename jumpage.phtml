@@ -57,16 +57,16 @@
 <?= $this->getField('categories', '', '<h2 class="t-large c-dark">', '</h2>') ?>
 <?php if($cover = $this->getImage($this->profile['cover']->cover_id)) { ?>
 </div>
-<figure class="cover"><img 
+<figure class="rsp cover"><img 
 class="ir fit" src="<?= $cover->src 
 ?>" width="<?= $cover->width 
 ?>" height="<?= $cover->height 
 ?>" alt="<?= $cover->alt 
 ?>" />
-<?= $this->getField('about', '', '<figcaption class="rsp"><p class="t-medium">', '</p></figcaption>') ?>
+<?= $this->getField('about', '', '<figcaption class="pdt"><p class="t-medium">', '</p></figcaption>') ?>
 </figure>
 <?php } else { ?>
-<?= $this->getField('about', '', '<div class="rsp"><p class="t-medium">', '</p></div>') ?>
+<?= $this->getField('about', '', '<div class="pdt"><p class="t-medium">', '</p></div>') ?>
 <?php } ?>
 </header>
 
