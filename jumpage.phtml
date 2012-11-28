@@ -78,12 +78,16 @@ class="ir fit" src="<?= $cover->src
 <?php foreach($this->posts as $post) { if($post->colnum == 0) { ?>
 <div class="spacer mgr">
 <?php if($post->image !== false) { ?>
+<?php if($post->image->type == 'image') { ?>
 <div class="postimg">
 <a href="<?= htmlentities($post->href) 
 ?>"><img class="fit" src="<?= $post->image->src 
 ?>" width="<?= $post->image->width 
 ?>" height="<?= $post->image->height 
 ?>" alt="" /></a></div>
+<?php } elseif($post->image->type == 'video') { ?>
+<div class="postvideo"><?= $post->image->html ?></div>
+<?php } ?>
 <?php } ?>
 <?php if($post->message !== '') { ?>
 <div class="pdg"><p class=" t-small">
@@ -96,12 +100,16 @@ class="ir fit" src="<?= $cover->src
 <?php foreach($this->posts as $post) { if($post->colnum == 1) { ?>
 <div class="spacer mgl">
 <?php if($post->image !== false) { ?>
+<?php if($post->image->type == 'image') { ?>
 <div class="postimg">
 <a href="<?= htmlentities($post->href) 
 ?>"><img class="fit" src="<?= $post->image->src 
 ?>" width="<?= $post->image->width 
 ?>" height="<?= $post->image->height 
 ?>" alt="" /></a></div>
+<?php } elseif($post->image->type == 'video') { ?>
+<div class="postvideo"><?= $post->image->html ?></div>
+<?php } ?>
 <?php } ?>
 <?php if($post->message !== '') { ?>
 <div class="pdg"><p class=" t-small">

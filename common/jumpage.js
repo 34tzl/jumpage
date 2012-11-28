@@ -23,6 +23,12 @@
 			
 		});
 		
+//		$('iframe').each(function(){
+//			var w = $(this).width();
+//			$(this).height((w/3)*2);
+//		});
+		
+		
 	});
 
 })(jQuery);

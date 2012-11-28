@@ -259,6 +259,7 @@ class Jumpage
 							$image['height'] = $item->height; //$media->photo->height; //$item[0]->height;
 							$image['alt'] = $media->alt;
 							$image['href'] = $media->href;
+							$image['type'] = 'image';
 							
 							break;
 // 						}
@@ -280,7 +281,46 @@ class Jumpage
 // 					$image['href'] = $media->href;
 					
 // 					break;
-// 				}
+// 				} 
+				elseif($media->type == 'video')
+				{
+					$href = $media->href;
+					
+					parse_str(parse_url($media->href, PHP_URL_QUERY), $query);
+					$src = urldecode(@$query['v']);
+					
+					if($src != '') // youtube
+					{
+						$image = array();
+						$w = $h = 200;
+							
+						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
+								. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
+						$image['width'] = $w;;
+						$image['height'] = $h;
+						$image['alt'] = $media->alt;
+						$image['href'] = $media->href;
+						$image['type'] = 'video';
+					}
+// 					elseif(strpos($href, 'vimeo') !== false)
+// 					{
+// 						$bits = explode('/', $href);
+// 						$id = $bits[count($bits)-1];
+						
+// 						$image = array();
+// 						$w = $h = 200;
+							
+// 						$image['html'] = '<iframe src="http://player.vimeo.com/video/' 
+// 							. $id . '" width="800" height="600"></iframe>';
+// 						$image['width'] = $w;;
+// 						$image['height'] = $h;
+// 						$image['alt'] = $media->alt;
+// 						$image['href'] = $media->href;
+// 						$image['type'] = 'video';
+// 					}
+					
+					break;
+				}
 			}
 		}
 		
@@ -361,7 +401,7 @@ class Jumpage
 			if($image !== false)
 			{
 				$image = (object) $image;
-				$href = $image->href;
+// 				$href = $image->href;
 				
 				$height += $image->height;
 				
@@ -896,7 +936,7 @@ class Jumpage
 		$value = str_replace('<br>', '<br />', $value);
 		$value = preg_replace('/\s+/', ' ', $value);
 		
-		return $prefix . trim($value) . $suffix;
+		return $prefix . htmlentities(trim($value), ENT_QUOTES, "UTF-8") . $suffix;
 	}
 	
 	public function getByFqlQuery($query)
