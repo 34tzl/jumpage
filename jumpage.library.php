@@ -124,8 +124,8 @@ class Jumpage
 	
 	private function _initProfile()
 	{
-		$this->profile = (array) $this->url_get_contents(
-			$this->_cfg->defaultGraphUrl . $this->_cfg->fbUserName
+		$this->profile = (array) $this->url_get_contents($this->_cfg->secureGraphUrl 
+			. $this->_cfg->fbUserName . '?access_token=' . $this->_cfg->fbAccessToken
 		);
 		
 		if(isset($this->profile['location']))
@@ -154,6 +154,7 @@ class Jumpage
 			{
 				$this->profile['longitude'] = $this->profile['location']->longitude;
 			}
+			
 		}
 		
 		$basePageFields = 'name, type, website, about, description, phone, categories, hours';
@@ -225,7 +226,6 @@ class Jumpage
 // 					{
 // 						if(isset($media->photo->images))
 // 						{
-							$image = array();
 								
 // 							$helper = $media->photo->images[count($media->photo->images)-1];
 // 							$image['src'] = $helper->src;
@@ -239,29 +239,33 @@ class Jumpage
 // 							$item = $this->getByFqlQuery($fql);
 							
 							
-							$pic = $this->url_get_contents(
-								$this->_cfg->defaultGraphUrl . '/' 
-									. $media->photo->fbid
-							);
-							
-							foreach($pic->images as $img)
-							{
-								if($img->width < 960)
+							if($pic = $this->url_get_contents(
+								$this->_cfg->secureGraphUrl . '/' 
+									. $media->photo->fbid . '?access_token='
+										. $this->_cfg->fbAccessToken
+							)){
+								
+								foreach($pic->images as $img)
 								{
-									$item = $img;
-									break;
+									if($img->width < 960)
+									{
+										$item = $img;
+										break;
+									}
 								}
+								
+								$image = array();
+								
+								$image['pid'] = $media->photo->fbid;
+								$image['src'] = $item->source; //$item[0]->src;
+								$image['width'] = $item->width; // $media->photo->width; //$item[0]->width;
+								$image['height'] = $item->height; //$media->photo->height; //$item[0]->height;
+								$image['alt'] = $media->alt;
+								$image['href'] = $media->href;
+								$image['type'] = 'image';
+								
+								break;
 							}
-							
-							$image['pid'] = $media->photo->fbid;
-							$image['src'] = $item->source; //$item[0]->src;
-							$image['width'] = $item->width; // $media->photo->width; //$item[0]->width;
-							$image['height'] = $item->height; //$media->photo->height; //$item[0]->height;
-							$image['alt'] = $media->alt;
-							$image['href'] = $media->href;
-							$image['type'] = 'image';
-							
-							break;
 // 						}
 						
 // 					}
@@ -478,8 +482,9 @@ class Jumpage
 	public function getAlbums()
 	{
 		$albums = $this->url_get_contents(
-			$this->_cfg->defaultGraphUrl
-				. $this->_cfg->fbUserName . '/albums' 
+			$this->_cfg->secureGraphUrl
+				. $this->_cfg->fbUserName . '/albums?access_token=' 
+				. $this->_cfg->fbAccessToken 
 		);
 	}
 	
@@ -741,9 +746,11 @@ class Jumpage
 	
 	public function getImage($fbImageId, $minImageWidth=960)
 	{
-		if($item = $this->url_get_contents(
-			$this->_cfg->defaultGraphUrl . $fbImageId))
-		{
+		if($fbImageId == '') return false;
+		
+		if($item = $this->url_get_contents($this->_cfg->secureGraphUrl
+			. $fbImageId . '?access_token=' . $this->_cfg->fbAccessToken
+		)){
 			$name = strip_tags(@$item->name);
 			$name = preg_replace('/\s+/', ' ', $name);
 			$name = str_replace('"', '', $name);
@@ -897,7 +904,7 @@ class Jumpage
 		else
 		{
 			$data = (array) $this->url_get_contents(
-				$this->_cfg->defaultGraphUrl
+				$this->_cfg->secureGraphUrl
 					. $this->_cfg->fbUserName . '?fields='
 					. $fbFieldName . '&access_token='
 					. $this->_cfg->fbAccessToken
