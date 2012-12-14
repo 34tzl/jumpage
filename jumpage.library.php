@@ -157,7 +157,7 @@ class Jumpage
 			
 		}
 		
-		$basePageFields = 'name, type, website, about, description, phone, categories, hours';
+		$basePageFields = 'name, type, website, about, description, phone, categories, hours, is_published';
 		
 		if(!empty($this->_cfg->fbInitPageFields))
 		{

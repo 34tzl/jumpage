@@ -625,6 +625,7 @@ h1, h2, h3, p {
 	display: block;
 	padding: 0;
 	margin: 0;
+	word-wrap: break-word;
 }
 
 ::selection {
@@ -739,11 +740,15 @@ a:hover {
 	padding-bottom: 1.5em;
 }
 
+.ptz {
+	padding-top: 0;
+}
 
 
 footer {
 	background: rgb(48,48,48);
 	padding-bottom: 1.5em;
+	min-height: 25%;
 }
 
 footer a:hover {

@@ -27,12 +27,24 @@ $config = array(
 	'fbAccessToken' => '[ACCESS_TOKEN_PLACEHOLDER]', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
 	'fbWallId' => '[WALL_ID_PLACEHOLDER]', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID e.g. 85329 */
-	'fbLocale' => 'en_US',
+	'fbLocale' => 'de_DE',
 	'fbDaysBack' => 30,
 	'fbMaxPosts' => 9,
 	'fbMinPostLen' => 0,
 	'fbMaxPostLen' => 240,
 	'template' => 'jumpage.phtml',
+	'googleAnalyticsWebpropertyId' => '', // UA-XXXXXXXX-X,
 	'googlePlacesLink' => '', // e.g. http://goo.gl/maps/5Gnko
-	'googleAnalyticsWebpropertyId' => '' // UA-XXXXXXXX-X
+	'notes' => array(
+		'service' => '',
+		'contact' => '',
+		'legal' => ''
+	),
+	'labels' => array(
+			'MoreOnFacebook' => 'Mehr auf Facebook',
+			'OpeningTimes' => 'Öffnungszeiten:'
+	),
+	'mailsubject' => 'Neue Nachricht via jumpage Kontaktformular...',
+	'mailsuccess' => 'Vielen Dank für Ihre Nachricht, die wir schnellst möglich beantworten.',
+	'email' => ''
 );
