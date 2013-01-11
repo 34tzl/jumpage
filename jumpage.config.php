@@ -41,10 +41,10 @@ $config = array(
 		'legal' => ''
 	),
 	'labels' => array(
-			'MoreOnFacebook' => 'Mehr auf Facebook',
-			'OpeningTimes' => 'Öffnungszeiten:'
+			'MoreOnFacebook' => 'More on Facebook',
+			'OpeningTimes' => ''
 	),
-	'mailsubject' => 'Neue Nachricht via jumpage Kontaktformular...',
-	'mailsuccess' => 'Vielen Dank für Ihre Nachricht, die wir schnellst möglich beantworten.',
+	'mailsubject' => 'New message via jumpage contact form...',
+	'mailsuccess' => 'Thank you for your message. We will reply as soon as possible.',
 	'email' => ''
 );

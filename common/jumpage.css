@@ -757,6 +757,7 @@ footer a:hover {
 }
 
 .buttons {
+	position: relative;
 	text-align: center;
 	display: block;
 	margin: 1.5em;
@@ -782,6 +783,18 @@ a.btn {
 .btn:hover {
 	background: rgb(16,156,217);
 	color: #fff;
+}
+
+.topbtn {
+	position: absolute;
+	display: block;
+	right: 0;
+	top: 0;
+	margin: 0;
+	padding: 0;
+	clear: both;
+	width: 3em;
+	height: 3em;
 }
 
 .clr {

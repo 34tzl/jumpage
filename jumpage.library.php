@@ -296,7 +296,7 @@ class Jumpage
 					if($src != '') // youtube
 					{
 						$image = array();
-						$w = $h = 200;
+						$w = $h = 300;
 							
 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
 								. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
@@ -645,6 +645,8 @@ class Jumpage
 // 		$fql = "SELECT src, width, height FROM photo_src WHERE width > 960 "
 // 			. "AND photo_id IN(SELECT object_id FROM photo WHERE aid='" . $aid . "')";
 		
+		$iswall = $aid == 'wall';
+		
 		$albumtypes = array(
 			'profile',
 			'mobile',
@@ -660,10 +662,21 @@ class Jumpage
 			$aid = $item[0]->aid;
 		}
 		
-		$fql = "SELECT pid, object_id, link, caption FROM photo WHERE aid='" 
-			. $aid . "'";
+		$albums = explode(',', $aid);
 		
-		if($aid == 'wall')
+		$fql = "SELECT aid, pid, object_id, link, caption FROM photo WHERE ";
+		
+		for($i=0; $i<count($albums); $i++)
+		{
+			if($i > 0)
+			{
+				$fql .= " OR ";
+			}
+			
+			$fql .= "aid='" . $albums[$i] . "'";
+		}
+		
+		if($iswall)
 		{
 			$timeLimit = time() - ($this->_cfg->fbDaysBack * 24 * 60 * 60);
 			$fql .= " AND created > " . $timeLimit;
@@ -684,6 +697,7 @@ class Jumpage
 		foreach($items as $item)
 		{
 			$helper[$item->object_id] = (object) array(
+				'aid' => $item->aid,
 				'pid' => $item->pid,
 				'link' => $item->link,
 				'caption' => $item->caption,
@@ -942,8 +956,9 @@ class Jumpage
 
 		$value = str_replace('<br>', '<br />', $value);
 		$value = preg_replace('/\s+/', ' ', $value);
-		
-		return $prefix . htmlentities(trim($value), ENT_QUOTES, "UTF-8") . $suffix;
+
+// 		return $prefix . htmlentities(trim($value), ENT_QUOTES, "UTF-8") . $suffix;
+		return $prefix . trim($value) . $suffix;
 	}
 	
 	public function getByFqlQuery($query)
@@ -1232,6 +1247,66 @@ class Jumpage
 		
 		return $host;
 	}
+	
+	public function formatAsWebUrl($str, $hasFileExt=false, $separator='-', $prefix='')
+	{
+		$str = mb_strtolower($str, 'UTF-8');
+		$fileInfo = null;
+		$fileExt = '';
+		
+		if($hasFileExt)
+		{
+			$fileInfo= pathinfo($str);
+			$fileExt = '.' . $fileInfo['extension'];
+			$str = str_replace($fileExt, '', $fileInfo['basename']);
+		};
+		
+		$find = array('/ä/', '/ö/', '/ü/', '/ß/', '/ç/', '/ø/');
+		$replace = array('ae', 'oe', 'ue', 'ss', 'c', 'o');
+		
+		$str = preg_replace($find, $replace, $str);
+		
+		$str = urldecode($str);
+		
+		$str = preg_replace("/[\\057]+/", " ", $str); // 057 = SLASH
+		$str = preg_replace("/ /", "_", $str);
+		$str = preg_replace("/_/", "-", $str);
+		$str = preg_replace("/[^a-z0-9-]+/", "-", $str);
+		$str = preg_replace ("/[\\055]+/", '-', $str); // 055 = DASH
+		$str = preg_replace ("/^[\\055]+/", '', $str); // 055 = DASH
+		$str = preg_replace ("/[\\055]+$/", '', $str); // 055 = DASH
+		$str = preg_replace ("/[\\055]+/", $separator, $str); // 055 = DASH
+		
+		if($prefix != '')
+		{
+			if(!stristr($str, $prefix . $separator))
+			{
+				$str = $prefix . $separator . $str;
+			}
+		}
+		
+		$helper = explode($separator, $str);
+		$str = '';
+		
+		for($i=0;$i<sizeof($helper);$i++)
+		{
+			$bit = trim( $helper[$i] );
+			
+			if( $bit != '')
+			{
+				if( $str != '')
+				{
+					$str .= $separator;
+				}
+				$str .= $bit;
+			}
+		}
+		
+		$str .= $fileExt;
+		
+		return $str;
+	}
+	
 	
 }
 
