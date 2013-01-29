@@ -554,7 +554,7 @@ class Jumpage
 			$sortdesc=true, 
 			$sincenow=true, 
 			$limit=10, 
-			$fields='id,name,description,start_time,location,picture.type(large)')
+			$fields='id,name,description,start_time,location,venue,picture.type(large)')
 	{
 		$events = array();
 		
@@ -610,9 +610,11 @@ class Jumpage
 					'name' => $event->name,
 					'description' => $description,
 					'location' => $event->location,
+					'venue' => $event->venue,
 					'datetime' => $datetime,
 					'picture' => $picture,
-					'link' => 'http://www.facebook.com/' . $event->id
+					'link' => 'http://www.facebook.com/' . $event->id,
+					'origin' => $event
 				);
 			}
 

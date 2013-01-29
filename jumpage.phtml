@@ -42,14 +42,16 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 
 <meta property="og:title" content="<?= $this->getField('name') ?>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<?= 'http://' . $this->baseurl . '/' ?>" />
-<meta property="og:image" content="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
+<meta property="og:url" content="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) ?>" />
+<meta property="og:image" content="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/open-graph-icon.jpg' ?>" />
 <?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
-<link rel="apple-touch-icon" href="<?= 'http://' . $this->baseurl . '/apple-touch-icon.png' ?>" />
-<link rel="image_src" href="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
-<link rel="shortcut icon" href="<?= 'http://' . $this->baseurl . '/favicon.ico' ?>" />
+<link rel="apple-touch-icon" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/apple-touch-icon.png' ?>" />
+<link rel="image_src" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/open-graph-icon.jpg' ?>" />
+<link rel="shortcut icon" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/favicon.ico' ?>" />
+
 <link rel="stylesheet" href="common/jumpage.css" />
+
 <script src="common/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
@@ -58,7 +60,7 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 <header>
 <div class="rsp">
 <?= $this->getField('name', '', '<h1 class="t-large">', '</h1>') ?>
-<?= $this->getField('categories', '', '<h2 class="t-large c-dark">', '</h2>') ?>
+<?= $this->getField('categories', '', '<h2>', '</h2>') ?>
 <?php if($cover = $this->getImage($this->profile['cover']->cover_id)) { ?>
 </div>
 <figure class="rsp cover"><img 
@@ -124,7 +126,7 @@ class="ir fit" src="<?= $cover->src
 </div>
 </div>
 </div>
-<div class="clr noprint pdb"><a title="Folge <?= $this->getField('name') 
+<div class="clr noprint pdb followbtn"><a title="Folge <?= $this->getField('name') 
 ?> auf Facebook" href="<?= $this->getField('link') 
 ?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
 ?> auf Facebook</a></div>

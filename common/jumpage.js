@@ -15,13 +15,13 @@
 			return false;
 		});
 		
-		$('.buttons a').hover(function() {
+		$('.buttons a').bind('mouseenter', function() {
 			var img = $(this).children('img');
 			var src = img.attr('src').replace('.png','');
 			
 			img.attr('src', src + '-drk.png');
 			
-		}, function() {
+		}).bind('mouseleave mouseup', function() {
 			var img = $(this).children('img');
 			var src = img.attr('src').replace('-drk','');
 			
@@ -195,7 +195,7 @@
 	function _resizeMaps()
 	{
 		var w = $('#google_maps').width();
-		var h = parseInt(w/4);
+		var h = parseInt(w/3);
 		
 		$('#google_maps').height(h);
 		
