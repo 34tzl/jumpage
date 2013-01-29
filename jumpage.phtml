@@ -126,14 +126,15 @@ class="ir fit" src="<?= $cover->src
 </div>
 </div>
 </div>
-<div class="clr noprint pdb followbtn"><a title="Folge <?= $this->getField('name') 
-?> auf Facebook" href="<?= $this->getField('link') 
-?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
-?> auf Facebook</a></div>
 </section>
 <?php } else { ?>
 <section class="wall noprint"><div class="rsp"><p class="t-medium">No posts in the last <?= $this->_cfg->fbDaysBack ?> days.</p></div></section>
 <?php }?>
+
+<div class="clr noprint followbtn"><a title="Folge <?= $this->getField('name') 
+?> auf Facebook" href="<?= $this->getField('link') 
+?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
+?> auf Facebook</a></div>
 
 <?= $this->getField('description', '', '<section><div class="rsp ptz"><p class="t-medium">', '</p></div></section>') ?>
 
