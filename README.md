@@ -15,8 +15,8 @@ Or simply go to [jumpage.net/app](http://jumpage.net/app) and download your full
 
 - Download your jumpage
 - Unzip the archive
-- upload the files
-- Enjoying the simplicity of your new Website
+- Upload the files
+- Enjoy the simplicity of your new Website
 
 About jumpage Your web concept
 ==============================
@@ -28,3 +28,4 @@ jumpage is the radically simple concept for a modern presence on the Internet. I
 
 Something awesome initialized by
 [bureaubleen.com](http://bureaubleen.com)
+
