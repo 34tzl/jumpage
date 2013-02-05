@@ -9,6 +9,7 @@
 #   perishablepress.com/press/2006/01/10/stupid-htaccess-tricks/
 #   Sample .htaccess file of CMS MODx: modxcms.com
 
+SetEnv APPLICATION_ENV production
 
 # ----------------------------------------------------------------------
 # Better website experience for IE users
@@ -364,7 +365,8 @@ FileETag None
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
   
-  RewriteRule clearcache /?cache=clear [NC,L]
+  RewriteCond %{REQUEST_URI} ^(.*)/clearcache$
+  RewriteRule ^(.*)/clearcache$ %1/?cache=clear [NC,L]
   
 </IfModule>
 

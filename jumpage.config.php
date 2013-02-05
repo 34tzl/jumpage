@@ -38,7 +38,7 @@ $config = array(
 	'notes' => array(
 		'service' => '',
 		'contact' => '',
-		'legal' => ''
+		'legal' => '[LEGAL_NOTE_ID_PLACEHOLDER]'
 	),
 	'labels' => array(
 			'MoreOnFacebook' => 'More on Facebook',

@@ -23,25 +23,26 @@
  *  Token on jumpage.net/app
  *  
  */
-if(!defined('JUMPAGE_CONFIG_PATH'))
-{
-	define('JUMPAGE_CONFIG_PATH', 'jumpage.config.php');
-}
+defined('APPLICATION_ENV') || define(
+	'APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production')
+);
 
-if(!defined('JUMPAGE_TEMPLATE_PATH'))
-{
-	define('JUMPAGE_TEMPLATE_PATH', 'jumpage.phtml');
-}
+defined('JUMPAGE_CONFIG_PATH') || define(
+	'JUMPAGE_CONFIG_PATH', 'jumpage.config.php'
+);
+
+defined('JUMPAGE_TEMPLATE_PATH') || define(
+	'JUMPAGE_TEMPLATE_PATH', 'jumpage.phtml'
+);
 
 $cache_file_name = rtrim(dirname(JUMPAGE_CONFIG_PATH), '/')
 	. '/jumpage.cachefile.htm';
 
 define('CACHE_FILE_NAME', $cache_file_name);
 
-if(!defined('CACHE_EXPIRE_MINUTES'))
-{
-	define('CACHE_EXPIRE_MINUTES', 12*60);
-}
+defined('CACHE_EXPIRE_MINUTES') || define(
+	'CACHE_EXPIRE_MINUTES', 12*60
+);
 
 header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');
@@ -99,5 +100,5 @@ if(!empty($_GET['cache']))
 		);
 	}
 	
-	header('Location:http://' . rtrim($host, '/') . '/');
+	header('Location:http://' . rtrim($host, '/') . dirname($_SERVER['PHP_SELF']));
 }

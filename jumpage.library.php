@@ -95,6 +95,16 @@ class Jumpage
 		$this->_initPosts();
 		$this->_initImages();
 		
+		if(APPLICATION_ENV == 'production')
+		{
+			$legalNoteId = $this->_initLegalNote($cfgfile);
+			
+			if(isset($this->_cfg->notes['legal']))
+			{
+				$this->_cfg->notes['legal'] = $legalNoteId;
+			}
+		}
+		
 		if($template != '')
 		{
 			if(file_exists($template))
@@ -106,6 +116,8 @@ class Jumpage
 	
 	private function _initConfig($config)
 	{
+		$config['defaultFacebookUrl'] = 'http://www.facebook.com/';
+		$config['secureFacebookUrl'] = 'https://www.facebook.com/';
 		$config['defaultGraphUrl'] = 'http://graph.facebook.com/';
 		$config['secureGraphUrl'] = 'https://graph.facebook.com/';
 		
@@ -120,6 +132,92 @@ class Jumpage
 		}
 		
 		return $config;
+	}
+	
+	private function _initLegalNote($cfgfile)
+	{
+		$fbLegalNoteId = trim(str_replace(
+			'[LEGAL_NOTE_ID_PLACEHOLDER]', '', 
+			$this->_cfg->notes['legal']
+		));
+		
+		if(is_numeric($fbLegalNoteId))
+		{
+			return $fbLegalNoteId;
+		}
+		
+		$fbWallId = $this->_cfg->fbWallId;
+		$legalNoteTitle = 'Impressum';
+		$legalNoteMsg = '';
+		
+		$fql = "SELECT note_id FROM note WHERE uid='" . $fbWallId 
+			. "' AND strpos(title, '" . $legalNoteTitle . "') >= 0";
+		
+		$item = $this->getByFqlQuery($fql);
+		
+		if(isset($item[0]->note_id))
+		{
+			$fbLegalNoteId = $item[0]->note_id;
+		}
+		
+		if($fbLegalNoteId == '')
+		{
+			$legalNoteMsg = 'jumpage: Edit or delete your legal note here ' .  rtrim($this->getField('link'), '/') . '/notes';
+				
+			$url = $this->_cfg->secureGraphUrl . $this->_cfg->fbUserName . '/notes';
+			
+			$fields = array(
+					'access_token' => urlencode($this->_cfg->fbAccessToken),
+					'subject' => urlencode($legalNoteTitle),
+					'message' => urlencode($legalNoteMsg)
+			);
+			
+			$fields_string = '';
+			
+			foreach($fields as $key=>$value)
+			{
+				if($fields_string != '')
+				{
+					$fields_string .= '&';
+				}
+				$fields_string .= $key . '=' . $value;
+			}
+			
+			$ch = curl_init();
+			
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, count($fields));
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+			
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			
+			$result = curl_exec($ch);
+			$json = @json_decode($result);
+			
+			curl_close($ch);
+			
+			if(isset($json->id))
+			{
+				$fbLegalNoteId = $json->id;
+			}
+				
+		}
+		
+		$fbLegalNoteId = trim($fbLegalNoteId);
+		if(is_numeric($fbLegalNoteId))
+		{
+			$config = file_get_contents($cfgfile);
+			
+			$config = str_replace(
+					'[LEGAL_NOTE_ID_PLACEHOLDER]',
+					$fbLegalNoteId,
+					$config
+			);
+			
+			file_put_contents($cfgfile, $config);
+		}
+		
+		return $fbLegalNoteId;
 	}
 	
 	private function _initProfile()
@@ -488,7 +586,7 @@ class Jumpage
 		);
 	}
 	
-	public function getAlbumsByType($type='normal')
+	public function getAlbumsByType($type='normal', $aid='')
 	{
 		/* 
 			The type of photo album. Can be one of
@@ -499,10 +597,17 @@ class Jumpage
 			normal: For all other albums.
 		*/
 		
+		$where = "type='" . $type . "'";
+		
+		if($aid != '')
+		{
+			$where = "aid='" . $aid . "'";
+		}
+		
 		$fql = array(
 			"albums" => "SELECT aid, cover_pid, photo_count, name, description, link FROM album "
 				. "WHERE visible='everyone' AND photo_count>0 AND owner='" . $this->_cfg->fbWallId . "' "
-				. "AND type='" . $type . "'",
+				. "AND " . $where,
 			"covers" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
 				. "FROM photo WHERE pid IN(SELECT cover_pid FROM #albums)",
 			"images" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
@@ -597,9 +702,13 @@ class Jumpage
 					
 					$description = '';
 					
-					for($i=0; $i<$shortdesc; $i++)
+					for($i=0; $i<count($bits); $i++)
 					{
 						$description .= $bits[$i];
+						if($i >= $shortdesc)
+						{
+							break;
+						}
 					}
 					
 					$description = $this->_tidyFacebookMessage($description);
@@ -620,11 +729,13 @@ class Jumpage
 
 			if($sortdesc)
 			{
-				array_multisort($events, SORT_DESC);
+// 				array_multisort($events, SORT_DESC);
+				ksort($events);
 			}
 			else
 			{
-				array_multisort($events, SORT_ASC);
+// 				array_multisort($events, SORT_ASC);
+				krsort($events);
 			}
 		}
 		
@@ -791,7 +902,7 @@ class Jumpage
 		return false;
 	}
 	
-	public function getNote($fbNoteId, $stripTags=false, $lineBreaks=false)
+	public function getNote($fbNoteId, $stripTags=false, $lineBreaks=false, $className='')
 	{
 		if($this->_notes === false)
 		{
@@ -814,8 +925,15 @@ class Jumpage
 					$note->message = str_replace('</p><p> </p><p>', '<br /><br />', $note->message);
 					$note->message = str_replace(array('<div><p>','</p></div>', '<p>'), '', $note->message);
 					$note->message = str_replace('</p>', '<br />', $note->message);
-					$note->message = '<p>' . $note->message . '</p>';
 					
+					if($className == '')
+					{
+						$note->message = '<p>' . $note->message . '</p>';
+					}
+					else
+					{
+						$note->message = '<p class="' . $className . '">' . $note->message . '</p>';
+					}
 // 					$note->message = '<p>' . str_replace(array(
 // 							'<div><p>','</p></div>', '<p> </p>', '<p></p>'
 // 					), '', $note->message) . '</p>';
