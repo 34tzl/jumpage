@@ -43,13 +43,13 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 
 <meta property="og:title" content="<?= $this->getField('name') ?>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) ?>" />
-<meta property="og:image" content="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/open-graph-icon.jpg' ?>" />
+<meta property="og:url" content="<?= '//' . $this->baseurl . '/' ?>" />
+<meta property="og:image" content="<?= '//' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
 <?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
-<link rel="apple-touch-icon" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/apple-touch-icon.png' ?>" />
-<link rel="image_src" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/open-graph-icon.jpg' ?>" />
-<link rel="shortcut icon" href="<?= 'http://' . $this->baseurl . dirname($_SERVER['PHP_SELF']) . '/favicon.ico' ?>" />
+<link rel="apple-touch-icon" href="<?= '//' . $this->baseurl . '/apple-touch-icon.png' ?>" />
+<link rel="image_src" href="<?= '//' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
+<link rel="shortcut icon" href="<?= '//' . $this->baseurl . '/favicon.ico' ?>" />
 
 <link rel="stylesheet" href="common/jumpage.css" />
 
@@ -137,7 +137,7 @@ class="ir fit" src="<?= $cover->src
 ?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
 ?> auf Facebook</a></div>
 
-<?= $this->getField('description', '', '<section><div class="rsp ptz"><p class="t-medium">', '</p></div></section>') ?>
+<?= $this->getField('description', '', '<section><div class="rsp ptz"><p class="t-medium">', '</p></div></section>', true) ?>
 
 <footer>
 <?php if($showGoogleMaps) { ?>
@@ -246,7 +246,7 @@ $legal_message = preg_replace_callback(
 ?>
 <div class="rsp ptz"><p class="t-small c-light"><?= $legal_message ?></p></div>
 <?php } ?><?php } else { ?>
-<div class="rsp ptz"><p class="t-small c-light">Legal mentions: Add a notice id for notes > legal in jumpage.config.php to display your legal mentions here.</p></div>
+<div class="rsp ptz"><p class="t-small c-light">Legal mentions: Add a notice id for notes &gt; legal in jumpage.config.php to display your legal mentions here.</p></div>
 <?php } ?>
 </div>
 
@@ -264,7 +264,6 @@ For more information and how to use it, visit jumpage.net
 -->
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-
 <?php if($showGoogleMaps) { ?>
 <script src="//maps.google.com/maps/api/js?sensor=false"></script>
 <script>!window.jQuery && document.write(unescape('%3Cscript '

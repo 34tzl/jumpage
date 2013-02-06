@@ -1356,16 +1356,26 @@ class Jumpage
 	
 	private function _url()
 	{
-		$host = $_SERVER['HTTP_HOST'];
-		
 		if(isset($_ENV['SCRIPT_URI']))
 		{
-			$host = parse_url(
-				$_ENV['SCRIPT_URI'], PHP_URL_HOST
-			);
+			$url = $_ENV['SCRIPT_URI'];
+		}
+		else
+		{
+			$url = 'http://' . $_SERVER['HTTP_HOST'] 
+				. $_SERVER['REQUEST_URI'];
 		}
 		
-		return $host;
+		$url = str_replace(array(
+			'/clearcache'
+		), '', $url);
+		
+		$url = parse_url($url);
+		
+		$host = rtrim($url['host'], '/');
+		$path = ltrim($url['path'], '/');
+		 
+		return rtrim($host . '/' . $path, '/');
 	}
 	
 	public function formatAsWebUrl($str, $hasFileExt=false, $separator='-', $prefix='')

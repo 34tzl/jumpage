@@ -64,6 +64,12 @@ ob_start("ob_gzhandler");
 
 $filemtime = @filemtime(CACHE_FILE_NAME);
 
+if($filemtime !== false)
+{
+	$loadCacheFile = $loadCacheFile 
+		&& date('D', $filemtime) == date('D');
+}
+
 if($loadCacheFile)
 {
 	if($filemtime !== false && (

@@ -944,8 +944,6 @@ iframe {
 @media only screen and (max-device-width: 480px),
 	only screen and (orientation:portrait) and (max-device-width: 960px){
 	
-	
-
 	body {
 		font-size: 200%;
 	}
@@ -960,7 +958,12 @@ iframe {
 		display: none;
 	}
 	
-	header, section, .cntr {
+	header {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
+	section, .cntr {
 		margin: 0;
 		padding: 0;
 		width: 100%;	

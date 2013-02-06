@@ -137,52 +137,58 @@
 		
 		map = new google.maps.Map(document.getElementById("google_maps"), myOptions);
 		
-		_resizeMaps();
-		
-		var image = new google.maps.MarkerImage('common/marker.png',
+		var _setMarker = function(position)
+		{
+			var icon = new google.maps.MarkerImage('common/marker.png',
 				new google.maps.Size(20,34), new google.maps.Point(0,0),
 				new google.maps.Point(10,34));
-		
-		var geocoder = new google.maps.Geocoder();
-		
-		if (geocoder) {
-			geocoder.geocode({
-				'address' : googleMapsConfig['address']
-			},
-			function(results, status) {
-				var defLatLng = myLatLng;
-				
-				if(status == google.maps.GeocoderStatus.OK) {
-					if(latlngset)
-					{
-						map.setCenter(myLatLng);
-					}
-					else
-					{
-						map.setCenter(results[0].geometry.location);
-						myLatLng = results[0].geometry.location;
-						defLatLng = myLatLng;
-					}
-				} else {
-					map.setCenter(myLatLng);
-				}
-				
-				var marker = new google.maps.Marker({
-					position: defLatLng, //myLatLng,
-					map: map,
-					icon: image,
-					title: googleMapsConfig['title']
-				});
-
-				google.maps.event
-					.addListener(marker, 'click', function() {
-					// map.setCenter(myLatLng);
-					location.href = googleMapsConfig['href'];
-				});
-				
+			
+			var marker = new google.maps.Marker({
+				position: position,
+				map: map,
+				icon: icon,
+				title: googleMapsConfig['title']
 			});
+			
+			if(googleMapsConfig['href'] == '')
+			{
+				googleMapsConfig['href'] = 'http://maps.google.com/maps?q=' 
+					+ encodeURI(googleMapsConfig['address']) 
+					+ '&ll=' + position.lat() + ',' + position.lng();
+			}
+			
+			google.maps.event
+				.addListener(marker, 'click', function() {
+				location.href = googleMapsConfig['href'];
+			});
+			
+			_resizeMaps();
+		};
+		
+		
+		if(latlngset)
+		{
+			_setMarker(myLatLng);
 		}
-
+		else
+		{
+			var geocoder = new google.maps.Geocoder();
+		
+			if (geocoder) {
+				geocoder.geocode({
+					'address' : googleMapsConfig['address']
+				},
+				function(results, status) {
+					
+					if(status == google.maps.GeocoderStatus.OK)
+					{
+						myLatLng = results[0].geometry.location;
+					}
+					_setMarker(myLatLng);
+				});
+			}
+		}
+		
 		var styledMapOptions = {
 			name : "jumpage"
 		};
