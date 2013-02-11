@@ -1,7 +1,7 @@
 <?php
 /**
  *  jumpage Your web concept Framework
- *  Copyright (C) 2012 Bureau BLEEN Design Development
+ *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -103,6 +103,15 @@ class Jumpage
 			{
 				$this->_cfg->notes['legal'] = $legalNoteId;
 			}
+			
+			if(isset($this->_cfg->createIcons))
+			{
+				if($this->_cfg->createIcons)
+				{
+					$this->_initGraphTouchFavIcons();
+				}
+			}
+			
 		}
 		
 		if($template != '')
@@ -309,6 +318,164 @@ class Jumpage
 // 			. $this->_cfg->fbAccessToken*/);
 	}
 	
+	private function _initGraphTouchFavIcons()
+	{
+		$url = $this->_cfg->secureGraphUrl
+			. $this->_cfg->fbUserName 
+			. '/picture?type=large&access_token=' 
+			. $this->_cfg->fbAccessToken;
+		
+		$imgtmp = './fbpicture.temp.jpg';
+	
+		$ch = curl_init($url);
+		$fp = fopen($imgtmp, 'wb');
+	
+		curl_setopt($ch, CURLOPT_FILE, $fp);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		
+		curl_exec($ch);
+		
+		curl_close($ch);
+		fclose($fp);
+		
+		$imgnfo = getimagesize($imgtmp);
+		
+		$img_w = $crop_w = $imgnfo[0]; // width
+		$img_h = $crop_h = $imgnfo[1]; // height
+		
+		$max_w = $max_h = 200;
+		$x = $y = intval(0);
+		
+		$t = $imgnfo[2]; // type
+		$s = $img_w/$img_h; // scale
+		
+		
+		if($max_w > 0 && $max_w < $img_w)
+		{
+			$img_w = $max_w;
+			$img_h = $img_w / $s;
+		}
+		
+		if($max_h > 0 && $max_h < $img_h)
+		{
+			$img_h = $max_h;
+			$img_w = $img_h * $s;
+		}
+		
+		if($img_h < $max_h)
+		{
+			$img_h = $max_h;
+			$img_w = $img_h * $s;
+		}
+	
+		if($img_w < $max_w)
+		{
+			$img_w = $max_w;
+			$img_h = $img_w / $s;
+		}
+		
+		switch($t)
+		{
+			case IMAGETYPE_JPEG:
+				$imgbin = imagecreatefromjpeg($imgtmp);
+				break;
+				
+			case IMAGETYPE_GIF:
+				$imgbin = imagecreatefromgif($imgtmp);
+				break;
+				
+			case IMAGETYPE_PNG:
+				$imgbin = imagecreatefrompng($imgtmp);
+				break;
+		}
+		
+		$image = imagecreatetruecolor($img_w, $img_h);
+		
+		imagecopyresampled(
+			$image,
+			$imgbin,
+			0, 0, $x, $y,
+			$img_w,
+			$img_h,
+			$crop_w,
+			$crop_h
+		);
+		
+		$x = intval(($img_w-$max_w) / 2);
+		$y = intval(($img_h-$max_h) / 2);
+	
+		$x = $x > 0 ? $x-1 : 0;
+		$y = $y > 0 ? $y-1 : 0;
+	
+		$cropimg = imagecreatetruecolor($max_w, $max_h);
+	
+		imagecopyresampled(
+			$cropimg,
+			$image,
+			0, 0, $x, $y,
+			$max_w,
+			$max_h,
+			$max_w,
+			$max_h
+		);
+		
+		$icon = imagecreatetruecolor(16, 16);
+		
+		imagecopyresampled(
+			$icon, $cropimg,
+			0, 0, 0, 0, 16, 16,
+			$max_w, $max_h
+		);
+		
+		imagejpeg($cropimg, './open-graph-icon.jpg', 100);
+		imagepng($cropimg, './apple-touch-icon.png');
+		
+		imagedestroy($cropimg);
+		imagedestroy($image);
+		imagedestroy($imgbin);
+		
+		unlink($imgtmp);
+		
+		$p = array();
+		$w = $h = 16;
+		
+		for($y=$h-1; $y>=0; $y--)
+		{
+			for($x=0; $x<$w; $x++)
+			{
+				$c = imagecolorat($icon, $x, $y);
+				
+				$a = ($c & 0x7F000000) >> 24;
+				$a = (1 - ($a / 127)) * 255;
+				
+				$c &= 0xFFFFFF;
+				$c |= 0xFF000000 & ($a << 24);
+				
+				$p[] = $c;
+			}
+		}
+		
+		$size = ($w * $h * 4) + ((ceil($w / 32) * 4) * $h) + 40;
+		
+		$data = pack('vvv', 0, 1, 1) . pack('CCCCvvVV', $w, $h, 0, 0, 1, 32, $size, 22) . 
+			pack('VVVvvVVVVVV', 40, $w, ($h * 2), 1, 32, 0, 0, 0, 0, 0, 0);
+		
+		foreach($p as $c)
+		{
+			$data .= pack('V', $c);
+		}
+		
+		while($w-- > 0)
+		{
+			$data .= pack('N', 0);
+		}
+		
+		file_put_contents('./favicon.ico', $data);
+		
+		imagedestroy($icon);
+	}
+	
 	private function _getPostImage($attachment)
 	{
 		$image = false;
@@ -397,7 +564,7 @@ class Jumpage
 						$w = $h = 300;
 							
 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
-								. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
+							. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
 						$image['width'] = $w;;
 						$image['height'] = $h;
 						$image['alt'] = $media->alt;
@@ -659,9 +826,10 @@ class Jumpage
 			$sortdesc=true, 
 			$sincenow=true, 
 			$limit=10, 
-			$fields='id,name,description,start_time,location,venue,picture.type(large)')
+			$fields='id,start_time,end_time') // id,name,description,start_time,location,venue,picture.type(large)
 	{
 		$events = array();
+		$etimes = array();
 		
 		if($this->_cfg->fbAccessToken != '')
 		{
@@ -670,22 +838,53 @@ class Jumpage
 				. $fields . '&access_token='
 				. $this->_cfg->fbAccessToken;
 			
-			if($sincenow)
-			{
-				$url .= '&since=now';
-			}
+// 			if($sincenow)
+// 			{
+// 				$url .= '&since=now';
+// 			}
 			
-			if($limit > 0)
-			{
-				$url .= '&limit=' . intval($limit);
-			}
+// 			if($limit > 0)
+// 			{
+// 				$url .= '&limit=' . intval($limit);
+// 			}
 			
 			$items = $this->url_get_contents($url);
 			
+			$where = '';
+			
 			foreach($items->data as $event)
 			{
-				$datetime = strtotime($event->start_time);
-				$imgsrc = $event->picture->data->url;
+				if($where != '')
+				{
+					$where .= ',';
+				}
+				$where .= $event->id;
+				
+				$etimes['E' . $event->id] = array(
+					'start_time' => $event->start_time,
+					'end_time' => $event->end_time
+				);
+			}
+			
+			$fql = "SELECT eid, name, description, location, venue, start_time, end_time, pic_big "
+				. "FROM event WHERE eid IN(" . $where . ") ORDER BY start_time";
+			
+			if($limit > 0)
+			{
+				$fql .= ' LIMIT ' . $limit;
+			}
+			
+			$items = $this->getByFqlQuery($fql);
+			
+			foreach($items as $event)
+			{
+// 				$datetime = strtotime($event->start_time);
+// 				$imgsrc = $event->picture->data->url;
+
+				$start_time = strtotime($etimes['E' . $event->eid]['start_time']);
+				$end_time = strtotime($etimes['E' . $event->eid]['end_time']);
+				
+				$imgsrc = $event->pic_big;
 				$imginfo = getimagesize($imgsrc);
 				
 				$picture = (object) array(
@@ -714,29 +913,24 @@ class Jumpage
 					$description = $this->_tidyFacebookMessage($description);
 				}
 				
-				$events[$datetime] = (object) array(
-					'id' => $event->id,
+				$daysdiff = round(abs($end_time-$start_time)/60/60/24);
+				
+				$events[] = (object) array(
+					'id' => $event->eid,
 					'name' => $event->name,
 					'description' => $description,
 					'location' => $event->location,
 					'venue' => $event->venue,
-					'datetime' => $datetime,
+					'datetime' => $start_time,
+					'start_time' => $start_time,
+					'end_time' => $end_time,
+					'daysdiff' => $daysdiff,
 					'picture' => $picture,
-					'link' => 'http://www.facebook.com/' . $event->id,
+					'link' => 'http://www.facebook.com/' . $event->eid,
 					'origin' => $event
 				);
 			}
-
-			if($sortdesc)
-			{
-// 				array_multisort($events, SORT_DESC);
-				ksort($events);
-			}
-			else
-			{
-// 				array_multisort($events, SORT_ASC);
-				krsort($events);
-			}
+			
 		}
 		
 		return $events;
@@ -1244,6 +1438,15 @@ class Jumpage
 	    return false;
 	}
 	
+	public function linkify($str)
+	{
+		return preg_replace(
+			'%\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s',
+			'<a href="$1">$1</a>',
+			$str
+		);
+	}
+	
 	private function _replaceSpecialCharacters($str)
 	{
 // 		$str = str_replace(array(
@@ -1367,7 +1570,8 @@ class Jumpage
 		}
 		
 		$url = str_replace(array(
-			'/clearcache'
+			'/clearcache',
+			'/index.php'
 		), '', $url);
 		
 		$url = parse_url($url);

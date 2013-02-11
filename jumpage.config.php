@@ -1,7 +1,7 @@
 <?php
 /**
  *  jumpage Your web concept Framework
- *  Copyright (C) 2012 Bureau BLEEN Design Development
+ *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ $config = array(
 	'fbMaxPosts' => 9,
 	'fbMinPostLen' => 0,
 	'fbMaxPostLen' => 240,
+	'createIcons' => true,
 	'template' => 'jumpage.phtml',
 	'googleAnalyticsWebpropertyId' => '', // UA-XXXXXXXX-X,
 	'googlePlacesLink' => '', // e.g. http://goo.gl/maps/5Gnko
@@ -42,7 +43,7 @@ $config = array(
 	),
 	'labels' => array(
 			'MoreOnFacebook' => 'More on Facebook',
-			'OpeningTimes' => ''
+			'OpeningTimes' => 'Open'
 	),
 	'mailsubject' => 'New message via jumpage contact form...',
 	'mailsuccess' => 'Thank you for your message. We will reply as soon as possible.',

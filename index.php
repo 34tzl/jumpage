@@ -1,7 +1,7 @@
 <?php
 /**
  *  jumpage Your web concept Framework
- *  Copyright (C) 2012 Bureau BLEEN Design Development
+ *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

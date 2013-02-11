@@ -184,6 +184,7 @@
 					{
 						myLatLng = results[0].geometry.location;
 					}
+					
 					_setMarker(myLatLng);
 				});
 			}
@@ -196,6 +197,7 @@
 		var wyMapType = new google.maps.StyledMapType(mapStyle, styledMapOptions);
 		map.mapTypes.set('jumpagestyle', wyMapType);
 		
+		_resizeMaps();
 	}
 	
 	function _resizeMaps()
