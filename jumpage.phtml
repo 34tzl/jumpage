@@ -142,7 +142,7 @@ class="ir fit" src="<?= $cover->src
 <?php if($showGoogleMaps) { ?>
 <div id="google_maps"></div>
 <?php } ?>
-<div class="cntr">
+<div class="cntr plr">
 <div class="tbl">
 <div class="row">
 <div class="col rsp vcard" id="hcard">
@@ -243,18 +243,21 @@ $legal_message = $this->linkify(
 <?php } ?>
 </div>
 
-<div class="buttons noprint"><a title="Folge <?=  $this->getField('name') 
-?> auf Facebook" href="<?= $this->getField('link') 
-?>"><img class="ir" src="common/facebook.png" width="48" height="48" alt="Facebook" /></a><a 
-title="Hi! I'm a jumpage" href="http://jumpage.net/"><img class="ir"
-src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="topbtn"><a 
-href="#top"><img class="ir" src="common/up.png" width="48" height="48" alt="Up" /></a></div></div>
 </footer>
 
 <!--
 This website was built with jumpage Your web concept - A Bureau BLEEN project
 For more information and how to use it, visit jumpage.net
 -->
+
+<div class="buttonbar noprint">
+<div class="cntr buttons"><a class="pdr" title="Folge <?=  $this->getField('name') 
+?> auf Facebook" href="<?= $this->getField('link') ?>"><img 
+class="hvr" src="common/facebook.png" width="48" height="48" alt="Facebook" /></a><a 
+class="pdl" title="Hi! I'm a jumpage" href="http://jumpage.net/"><img class="hvr"
+src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="topbtn"><a 
+href="#top"><img class="hvr" src="common/up.png" width="48" height="48" alt="Up" /></a></div>
+</div></div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <?php if($showGoogleMaps) { ?>

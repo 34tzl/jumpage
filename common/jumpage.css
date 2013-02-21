@@ -613,7 +613,7 @@ body {
 	-webkit-text-size-adjust: none;
 }
 
-header, section, .cntr, .followbtn {
+header, section, .followbtn {
 	display: block;
 	margin: 0 auto;
 	padding: 0 1.5em;
@@ -687,6 +687,11 @@ h2, .t-large {
 	font-weight: bold;
 }
 
+.cntr {
+	max-width: 72em;
+	margin: 0 auto;
+}
+
 .fit {
 	display: block;
 	width: 100%;
@@ -749,12 +754,20 @@ h2, .t-large {
 	padding-bottom: 1.5em;
 }
 
+.pdr {
+	padding-right: .75em;
+}
+
+.pdl {
+	padding-left: .75em;
+}
+
 .ptz {
 	padding-top: 0;
 }
 
 
-footer {
+footer, .buttonbar {
 	background: rgb(48,48,48);
 	padding-bottom: 1.5em;
 	min-height: 25%;
@@ -768,17 +781,32 @@ footer a:hover {
 .buttons {
 	position: relative;
 	text-align: center;
+	padding-top: 3em;
+	margin: 0 auto;
 	display: block;
-	margin: 1.5em;
-}
-
-.buttons a {
-	margin: .75em;
+	width: 100%;
 }
 
 .buttons a img {
-	width: 3em;
 	height: auto;
+	width: 3em;
+}
+
+.topbtn {
+	position: absolute;
+	display: block;
+	right: 1.5em;
+	top: 3em;
+}
+
+.hvr {
+	-webkit-border-radius: .3125em;
+	-moz-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
+.hvr {
+	background: #999;
 }
 
 a.btn {
@@ -790,25 +818,13 @@ a.btn {
 	border-radius: .3125em;
 }
 
-.btn:hover {
+.btn:hover, .hvr:hover {
 	background: rgb(16,156,217);
 	color: #fff;
 }
 
 .followbtn {
 	padding-bottom: 4.5em;
-}
-
-.topbtn {
-	position: absolute;
-	display: block;
-	right: .75em;
-	top: 0;
-	margin: 0;
-	padding: 0;
-	clear: both;
-	width: 3em;
-	height: 3em;
 }
 
 .clr {

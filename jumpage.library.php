@@ -308,7 +308,7 @@ class Jumpage
 		$aid = $this->_cfg->fbWallId
 			. '_' . $this->_cfg->fbAlbumId;
 		
-		if(!empty($aid))
+		if(!empty($this->_cfg->fbAlbumId))
 		{
 			$this->images = $this->getImages($aid, 'position', 24);
 		}
@@ -562,14 +562,25 @@ class Jumpage
 					{
 						$image = array();
 						$w = $h = 300;
-							
-						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
-							. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
-						$image['width'] = $w;;
-						$image['height'] = $h;
+						
+						$url = 'http://img.youtube.com/vi/' . $src . '/0.jpg';
+// 						$imginfo = getimagesize($url);
+						
+						$image['src'] = $url;
+						$image['width'] = $w; // $imginfo[0];
+						$image['height'] = $h; // $imginfo[0];
 						$image['alt'] = $media->alt;
 						$image['href'] = $media->href;
 						$image['type'] = 'video';
+						
+						
+// 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
+// 							. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
+// 						$image['width'] = $w;;
+// 						$image['height'] = $h;
+// 						$image['alt'] = $media->alt;
+// 						$image['href'] = $media->href;
+// 						$image['type'] = 'video';
 					}
 // 					elseif(strpos($href, 'vimeo') !== false)
 // 					{
@@ -867,12 +878,20 @@ class Jumpage
 			}
 			
 			$fql = "SELECT eid, name, description, location, venue, start_time, end_time, pic_big "
-				. "FROM event WHERE eid IN(" . $where . ") ORDER BY start_time";
+				. "FROM event WHERE eid IN(" . $where . ")";
+			
+			if($sincenow)
+			{
+				$fql .= ' AND start_time > now()';
+			}
+			
+			$fql .= ' ORDER BY start_time';
 			
 			if($limit > 0)
 			{
 				$fql .= ' LIMIT ' . $limit;
 			}
+			
 			
 			$items = $this->getByFqlQuery($fql);
 			
@@ -941,7 +960,7 @@ class Jumpage
 	
 // 	}
 	
-	public function getImages($aid='', $order='created DESC', $limit=9, $width=940)
+	public function getImages($aid='', $order='created DESC', $limit=9, $width=940, $equal_w=false)
 	{
 		if($aid == '')
 		{
@@ -1021,8 +1040,10 @@ class Jumpage
 			$where .= strval($item->object_id);
 		}
 		
+		$operator = $equal_w ? '=' : '>';
+		
 		$fql = 'SELECT photo_id, src, width, height FROM photo_src '
-			. 'WHERE width > ' . $width . ' AND photo_id IN(' . $where . ')';
+			. 'WHERE width >= ' . $width . ' AND photo_id IN(' . $where . ') ORDER BY width';
 		
 		$items = $this->getByFqlQuery($fql);
 		$images = array();
@@ -1033,7 +1054,7 @@ class Jumpage
 			$helper[$item->photo_id]->width = $item->width;
 			$helper[$item->photo_id]->height = $item->height;
 			
-			$images[] = $helper[$item->photo_id];
+			$images[$item->photo_id] = $helper[$item->photo_id];
 		}
 		
 		return $images;

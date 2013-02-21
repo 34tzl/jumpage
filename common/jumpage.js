@@ -15,20 +15,6 @@
 			return false;
 		});
 		
-		$('.buttons a').bind('mouseenter', function() {
-			var img = $(this).children('img');
-			var src = img.attr('src').replace('.png','');
-			
-			img.attr('src', src + '-drk.png');
-			
-		}).bind('mouseleave mouseup', function() {
-			var img = $(this).children('img');
-			var src = img.attr('src').replace('-drk','');
-			
-			img.attr('src', src);
-			
-		});
-		
 		if($('#google_maps').length > 0)
 		{
 			_initMaps();
