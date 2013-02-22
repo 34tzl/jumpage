@@ -778,6 +778,10 @@ footer a:hover {
 	
 }
 
+.buttonbar {
+	margin-top: -.125em;
+}
+
 .buttons {
 	position: relative;
 	text-align: center;
@@ -1005,6 +1009,10 @@ iframe {
 	
 	.rsp {
 		padding: 1.5em;
+	}
+	
+	.topbtn {
+		top: 0;
 	}
 	
 }
