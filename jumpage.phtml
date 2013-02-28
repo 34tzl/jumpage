@@ -58,80 +58,44 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 <body>
 
 <header>
-<div class="rsp">
+<div class="pagetitle">
 <?= $this->getField('name', '', '<h1 class="t-large">', '</h1>') ?>
 <?= $this->getField('categories', '', '<h2>', '</h2>') ?>
 </div>
 <?php if($cover = @$this->getImage($this->profile['cover']->cover_id)) { ?>
-<figure class="rsp cover"><img 
+<figure class="cover"><img 
 class="ir fit" src="<?= $cover->src 
 ?>" width="<?= $cover->width 
 ?>" height="<?= $cover->height 
 ?>" alt="<?= $cover->alt 
 ?>" />
-<?= $this->getField('about', '', '<figcaption class="pdt"><p class="t-medium">', '</p></figcaption>') ?>
+<?= $this->getField('about', '', '<figcaption class="txpdt"><p class="t-medium">', '</p></figcaption>') ?>
 </figure>
 <?php } else { ?>
-<?= $this->getField('about', '', '<div class="pdt"><p class="t-medium">', '</p></div>') ?>
+<?= $this->getField('about', '', '<div class="txpdt"><p class="t-medium">', '</p></div>') ?>
 <?php } ?>
 </header>
 
 <?php if(count($this->posts) > 0) { ?>
 <section class="wall">
-<div class="tbl">
-<div class="row">
-<div class="col">
-<?php foreach($this->posts as $post) { if($post->colnum == 0) { ?>
-<div class="spacer mgr">
-<?php if($post->image !== false) { ?>
-<?php if($post->image->type == 'image') { ?>
-<div class="postimg">
-<a href="<?= htmlentities($post->href) 
-?>"><img class="fit" src="<?= $post->image->src 
+<?php $hasImage = false; foreach($this->posts as $post) { ?>
+<div class="post"><?php if($post->image !== false) { 
+?><?php if($post->image->type == 'image' || $post->image->type == 'video') { $hasImage = true;
+?><a href="<?= htmlentities($post->href) 
+?>"><img class="fit<?= $post->image->type == 'video' ? ' ' . $post->image->origin . ' video' : '' 
+?>" src="<?= $post->image->src 
 ?>" width="<?= $post->image->width 
 ?>" height="<?= $post->image->height 
-?>" alt="" /></a></div>
-<?php } elseif($post->image->type == 'video') { ?>
-<div class="postvideo"><?= $post->image->html ?></div>
-<?php } ?>
-<?php } ?>
-<?php if($post->message !== '') { ?>
-<div class="pdg"><p class=" t-small">
+?>" alt="" /></a><?php } ?><?php } ?><?php if($post->message !== '') { 
+?><div class="txpdg bg-light"><p class=" t-small">
 <?= $post->message ?> <a href="<?= htmlentities($post->href) 
-?>">Mehr auf Facebook...</a></p></div><?php } ?>
-</div>
-<?php }} ?>
-</div>
-<div class="col pdl">
-<?php foreach($this->posts as $post) { if($post->colnum == 1) { ?>
-<div class="spacer mgl">
-<?php if($post->image !== false) { ?>
-<?php if($post->image->type == 'image') { ?>
-<div class="postimg">
-<a href="<?= htmlentities($post->href) 
-?>"><img class="fit" src="<?= $post->image->src 
-?>" width="<?= $post->image->width 
-?>" height="<?= $post->image->height 
-?>" alt="" /></a></div>
-<?php } elseif($post->image->type == 'video') { ?>
-<div class="postvideo"><?= $post->image->html ?></div>
+?>"><?= $this->_cfg->labels['MoreOnFacebook'] ?></a></p></div><?php } ?></div>
 <?php } ?>
-<?php } ?>
-<?php if($post->message !== '') { ?>
-<div class="pdg"><p class=" t-small">
-<?= $post->message ?> <a href="<?= htmlentities($post->href) 
-?>">Mehr auf Facebook...</a></p></div><?php } ?>
-</div>
-<?php }} ?>
-</div>
-</div>
-</div>
+<div class="clr"></div>
 </section>
-<?php } else { ?>
-<section class="wall noprint"><div class="rsp"><p class="t-medium">No posts in the last <?= $this->_cfg->fbDaysBack ?> days.</p></div></section>
-<?php }?>
+<?php } ?>
 
-<div class="clr noprint followbtn"><a title="Folge <?= $this->getField('name') 
+<div class="noprint followbtn"><a title="Folge <?= $this->getField('name') 
 ?> auf Facebook" href="<?= $this->getField('link') 
 ?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
 ?> auf Facebook</a></div>
@@ -145,7 +109,7 @@ class="ir fit" src="<?= $cover->src
 <div class="cntr plr">
 <div class="tbl">
 <div class="row">
-<div class="col rsp vcard" id="hcard">
+<div class="col txpdt vcard pdr" id="hcard">
 <div class="t-medium c-light"><a title="<?= $this->getField('name') 
 ?>" class="url org bold" href="http://<?= str_replace('http://', '', $this->getField('website')) 
 ?>" rel="bookmark"><?= $this->getField('name') ?></a>
@@ -161,7 +125,7 @@ class="ir fit" src="<?= $cover->src
 	?><?= $this->getField('phone', '', '', '</span></span>') ?>
 </div>
 </div></div>
-<div class="col rsp plr"><div class="t-medium c-light">
+<div class="col txpdt pdl"><div class="t-medium c-light">
 
 <?php $openingTimes = $this->getOpeningTimes(); if(count($openingTimes['time']) > 0){ ?>
 <?= $this->_cfg->labels['OpeningTimes'] ?><br />
@@ -237,7 +201,7 @@ $legal_message = $this->linkify(
 	$legal->message
 );
 ?>
-<div class="rsp ptz"><p class="t-small c-light"><?= $legal_message ?></p></div>
+<div class="rsp"><p class="t-small c-light"><?= $legal_message ?></p></div>
 <?php } ?><?php } else { ?>
 <div class="rsp ptz"><p class="t-small c-light">Legal mentions: Add a notice id for notes &gt; legal in jumpage.config.php to display your legal mentions here.</p></div>
 <?php } ?>
@@ -256,7 +220,7 @@ class="hvr" src="common/facebook.png" width="48" height="48" alt="Facebook" /></
 class="pdl" title="Hi! I'm a jumpage" href="http://jumpage.net/"><img class="hvr"
 src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="topbtn"><a 
 href="#top"><img class="hvr" src="common/up.png" width="48" height="48" alt="Up" /></a></div>
-</div></div>
+</div></div><div class="mobile"></div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <?php if($showGoogleMaps) { ?>

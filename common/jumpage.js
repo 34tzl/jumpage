@@ -2,8 +2,74 @@
 	
 	var map = myLatLng = null;
 	
-	function _is_touch_device() {
+	function _is_touch_device()
+	{
 		return !!('ontouchstart' in window);
+	}
+	
+	function _is_mobile_device()
+	{
+		return $('div.mobile:last').css('display') == 'block';
+	}
+	
+	function _setWallPosts()
+	{
+		if(_is_mobile_device()) return false;
+		
+		var col_w = (parseInt($('.wall').width()/2)-12);
+		var col_t = col_l = el_h = 0;
+		var col_h = [0,0];
+		
+		$('.post').css({
+			position: 'absolute',
+			display: 'block',
+			width: col_w + 'px',
+			float: 'none',
+			clear: 'both'
+		}).each(function(i, el){
+			
+			el = $(el);
+			
+			el_h = el.outerHeight();
+			
+			if(col_h[0] > col_h[1])
+			{
+				
+				col_t = col_h[1] + 'px';
+				col_h[1] += el_h + 24;
+				
+				col_l = col_w + 48;
+				
+			}
+			else
+			{
+				
+				col_t = col_h[0] + 'px';
+				col_h[0] += el_h + 24;
+				
+				col_l = 24;
+			}
+			
+			el.css({
+				top: col_t,
+				left: col_l
+			});
+			
+		});
+		
+		if(col_h[0] > col_h[1])
+		{
+			el_h = col_h[0];
+		}
+		else
+		{
+			el_h = col_h[1];
+		}
+		
+		el_h = (el_h) + 'px';
+		
+		$('.wall').height(el_h);
+		
 	}
 	
 	$(document).ready(function() {
@@ -20,6 +86,7 @@
 			_initMaps();
 		}
 		
+		_setWallPosts();
 		
 	});
 	
@@ -28,6 +95,7 @@
 		{
 			_resizeMaps();
 		}
+		_setWallPosts();
 	});
 	
 	function _initMaps()
@@ -189,7 +257,7 @@
 	function _resizeMaps()
 	{
 		var w = $('#google_maps').width();
-		var h = parseInt(w/3);
+		var h = parseInt(w/2);
 		
 		$('#google_maps').height(h);
 		

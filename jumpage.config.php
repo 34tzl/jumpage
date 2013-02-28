@@ -23,7 +23,7 @@
  *  Token on jumpage.net/app
  *  
  */
-$config = array(
+return array(
 	'fbAccessToken' => '[ACCESS_TOKEN_PLACEHOLDER]', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
 	'fbWallId' => '[WALL_ID_PLACEHOLDER]', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID e.g. 85329 */

@@ -48,7 +48,7 @@ class Jumpage
 			exit('CONFIG FILE NOT FOUND! ' . $cfgfile);
 		}
 		
-		require_once $cfgfile;
+		$config = include($cfgfile);
 		
 		if(isset($config['template']))
 		{
@@ -528,6 +528,7 @@ class Jumpage
 								$image['alt'] = $media->alt;
 								$image['href'] = $media->href;
 								$image['type'] = 'image';
+								$image['origin'] = 'facebook';
 								
 								break;
 							}
@@ -572,6 +573,7 @@ class Jumpage
 						$image['alt'] = $media->alt;
 						$image['href'] = $media->href;
 						$image['type'] = 'video';
+						$image['origin'] = 'youtube';
 						
 						
 // 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
@@ -1597,8 +1599,8 @@ class Jumpage
 		
 		$url = parse_url($url);
 		
-		$host = rtrim($url['host'], '/');
-		$path = ltrim($url['path'], '/');
+		$host = rtrim(@$url['host'], '/');
+		$path = ltrim(@$url['path'], '/');
 		 
 		return rtrim($host . '/' . $path, '/');
 	}
