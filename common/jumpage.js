@@ -86,8 +86,10 @@
 			_initMaps();
 		}
 		
+	});
+	
+	$(window).load(function() {
 		_setWallPosts();
-		
 	});
 	
 	$(window).resize(function(){
@@ -96,6 +98,9 @@
 			_resizeMaps();
 		}
 		_setWallPosts();
+		
+		console.debug('resize');
+		
 	});
 	
 	function _initMaps()
