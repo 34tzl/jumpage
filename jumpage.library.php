@@ -31,6 +31,8 @@ class Jumpage
 	
 	public $baseurl;
 	
+	public $loadCacheFile = false;
+	
 	public $profile = array();
 	public $images = array();
 	public $posts = array();
@@ -41,7 +43,7 @@ class Jumpage
 	
 	private $_notes = false;
 	
-	public function __construct($template='', $cfgfile='jumpage.config.php')
+	public function __construct($template='', $cfgfile='jumpage.config.php', $cfg=false)
 	{
 		if(!file_exists($cfgfile))
 		{
@@ -55,6 +57,19 @@ class Jumpage
 			if(file_exists($config['template']))
 			{
 				$template = $config['template'];
+			}
+		}
+		
+		if(false !== $cfg)
+		{
+			if(!empty($cfg['fbAccessToken']))
+			{
+				$config['fbAccessToken'] = $cfg['fbAccessToken'];
+			}
+			
+			if(!empty($cfg['fbWallId']))
+			{
+				$config['fbWallId'] = $cfg['fbWallId'];
 			}
 		}
 		
@@ -81,7 +96,13 @@ class Jumpage
 		
 		if(isset($item->error))
 		{
-			if($item->error->type == 'OAuthException')
+			if(empty($_GET['cache']) && file_exists(CACHE_FILE_NAME))
+			{
+				$this->loadCacheFile = true;
+				
+				return false;
+			}
+			elseif($item->error->type == 'OAuthException')
 			{
 				exit('PAGE ACCESS TOKEN invalid! Get yours on <a href="http://jumpage.net/app">jumpage.net/app</a>'); // (' . $item->error->message . ')');
 			}
@@ -284,9 +305,15 @@ class Jumpage
 		$this->profile['type'] = mb_strtolower($this->profile['type'], 'UTF-8');
 		$this->profile['type'] = ucwords($this->profile['type']);
 		
+		
 		if(isset($this->profile['categories']))
 		{
 			$helper = '';
+			
+// 			if(!empty($this->profile['category']))
+// 			{
+// 				$helper = $this->profile['category'];
+// 			}
 			
 			foreach ($this->profile['categories'] as $category)
 			{
@@ -1601,7 +1628,7 @@ class Jumpage
 		
 		$host = rtrim(@$url['host'], '/');
 		$path = ltrim(@$url['path'], '/');
-		 
+		
 		return rtrim($host . '/' . $path, '/');
 	}
 	

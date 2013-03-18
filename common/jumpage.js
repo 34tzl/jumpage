@@ -99,8 +99,6 @@
 		}
 		_setWallPosts();
 		
-		console.debug('resize');
-		
 	});
 	
 	function _initMaps()

@@ -42,8 +42,8 @@ return array(
 		'legal' => '[LEGAL_NOTE_ID_PLACEHOLDER]'
 	),
 	'labels' => array(
-			'MoreOnFacebook' => 'More on Facebook',
-			'OpeningTimes' => 'Open'
+		'MoreOnFacebook' => 'More on Facebook',
+		'OpeningTimes' => 'Open'
 	),
 	'mailsubject' => 'New message via jumpage contact form...',
 	'mailsuccess' => 'Thank you for your message. We will reply as soon as possible.',

@@ -31,9 +31,31 @@ defined('JUMPAGE_CONFIG_PATH') || define(
 	'JUMPAGE_CONFIG_PATH', 'jumpage.config.php'
 );
 
+defined('JUMPAGE_PREVIEW_MODE') || define(
+	'JUMPAGE_PREVIEW_MODE', false
+);
+
 defined('JUMPAGE_TEMPLATE_PATH') || define(
 	'JUMPAGE_TEMPLATE_PATH', 'jumpage.phtml'
 );
+
+defined('PAGE_ACCESS_TOKEN') || define(
+	'PAGE_ACCESS_TOKEN', false
+);
+
+defined('PAGE_WALL_ID') || define(
+	'PAGE_WALL_ID', false
+);
+
+$_JUMPAGE_CONFIG_INFO = false;
+
+if(false !== PAGE_ACCESS_TOKEN && PAGE_WALL_ID)
+{
+	$_JUMPAGE_CONFIG_INFO = array(
+		'fbAccessToken' => PAGE_ACCESS_TOKEN,
+		'fbWallId' => PAGE_WALL_ID
+	);
+}
 
 $cache_file_name = rtrim(dirname(JUMPAGE_CONFIG_PATH), '/')
 	. '/jumpage.cachefile.htm';
@@ -48,9 +70,7 @@ header('Content-Type: text/html; charset=utf-8');
 header('X-UA-Compatible: IE=Edge,chrome=1');
 // header('imagetoolbar: no');
 
-ini_set('allow_url_fopen', 'On');
-
-$loadCacheFile = true;
+$loadCacheFile = !JUMPAGE_PREVIEW_MODE;
 
 if(!empty($_GET['cache']))
 {
@@ -84,16 +104,25 @@ if($loadCacheFile)
 
 require_once "jumpage.library.php";
 
-$jp = new Jumpage(JUMPAGE_TEMPLATE_PATH, JUMPAGE_CONFIG_PATH);
+$jp = new Jumpage(JUMPAGE_TEMPLATE_PATH, JUMPAGE_CONFIG_PATH, $_JUMPAGE_CONFIG_INFO);
 
-if(file_exists(CACHE_FILE_NAME))
+if($jp->loadCacheFile)
+{
+	if(file_exists(CACHE_FILE_NAME))
+	{
+		exit(file_get_contents(CACHE_FILE_NAME));
+	}
+}
+
+if(!$jp->loadCacheFile && file_exists(CACHE_FILE_NAME))
 {
 	unlink(CACHE_FILE_NAME);
 }
 
-file_put_contents(
-	CACHE_FILE_NAME, ob_get_contents()
-);
+if(!(JUMPAGE_PREVIEW_MODE || $jp->loadCacheFile))
+{
+	file_put_contents(CACHE_FILE_NAME, ob_get_contents());
+}
 
 if(!empty($_GET['cache']))
 {

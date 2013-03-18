@@ -222,11 +222,12 @@ src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="
 href="#top"><img class="hvr" src="common/up.png" width="48" height="48" alt="Up" /></a></div>
 </div></div><div class="mobile"></div>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <?php if($showGoogleMaps) { ?>
 <script src="//maps.google.com/maps/api/js?sensor=false"></script>
+<?php } ?>
 <script>!window.jQuery && document.write(unescape('%3Cscript '
-+ 'src="common/jquery-1.9.0.min.js"%3E%3C/script%3E'
++ 'src="common/jquery-1.9.1.min.js"%3E%3C/script%3E'
 )); var googleMapsConfig = [];
 googleMapsConfig['Lat'] = <?= floatval($this->getField('latitude')) ?>;
 googleMapsConfig['Lng'] = <?= floatval($this->getField('longitude')) ?>;
@@ -236,7 +237,6 @@ googleMapsConfig['href'] = '<?= $this->_cfg->googlePlacesLink ?>';
 googleMapsConfig['title'] = 'Route planen mit Google Maps...';
 googleMapsConfig['zoom'] = 15;
 </script>
-<?php } ?>
 
 <script src="common/jumpage.js"></script>
 <?php if(!empty($this->_cfg->googleAnalyticsWebpropertyId)) { ?>
