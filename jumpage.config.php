@@ -33,17 +33,25 @@ return array(
 	'fbMinPostLen' => 0,
 	'fbMaxPostLen' => 240,
 	'createIcons' => true,
+	'createLegalNote' => true,
 	'template' => 'jumpage.phtml',
 	'googleAnalyticsWebpropertyId' => '', // UA-XXXXXXXX-X,
 	'googlePlacesLink' => '', // e.g. http://goo.gl/maps/5Gnko
 	'notes' => array(
 		'service' => '',
 		'contact' => '',
-		'legal' => '[LEGAL_NOTE_ID_PLACEHOLDER]'
+		'legal' => '[LEGAL_NOTE_ID_PLACEHOLDER]' // e.g. 281379811951062
 	),
 	'labels' => array(
 		'MoreOnFacebook' => 'More on Facebook',
-		'OpeningTimes' => 'Open'
+		'OpeningTimes' => 'Open',
+		'mon' => 'Mo',
+		'tue' => 'Tu',
+		'wed' => 'We',
+		'thu' => 'Th',
+		'fri' => 'Fr',
+		'sat' => 'Sa',
+		'sun' => 'Su'
 	),
 	'mailsubject' => 'New message via jumpage contact form...',
 	'mailsuccess' => 'Thank you for your message. We will reply as soon as possible.',

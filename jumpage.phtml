@@ -43,13 +43,13 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 
 <meta property="og:title" content="<?= $this->getField('name') ?>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<?= '//' . $this->baseurl . '/' ?>" />
-<meta property="og:image" content="<?= '//' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
+<meta property="og:url" content="<?= 'http://' . $this->baseurl . '/' ?>" />
+<meta property="og:image" content="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
 <?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
-<link rel="apple-touch-icon" href="<?= '//' . $this->baseurl . '/apple-touch-icon.png' ?>" />
-<link rel="image_src" href="<?= '//' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
-<link rel="shortcut icon" href="<?= '//' . $this->baseurl . '/favicon.ico' ?>" />
+<link rel="apple-touch-icon" href="<?= 'http://' . $this->baseurl . '/apple-touch-icon.png' ?>" />
+<link rel="image_src" href="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
+<link rel="shortcut icon" href="<?= 'http://' . $this->baseurl . '/favicon.ico' ?>" />
 
 <link rel="stylesheet" href="common/jumpage.css" />
 
@@ -166,13 +166,13 @@ foreach ($openingTimes['time'] as $openingTime)
 		'sat',
 		'sun'
 	), array(
-		'Mo',
-		'Di',
-		'Mi',
-		'Do',
-		'Fr',
-		'Sa',
-		'So'
+		$this->_cfg->labels['mon'],
+		$this->_cfg->labels['tue'],
+		$this->_cfg->labels['wed'],
+		$this->_cfg->labels['thu'],
+		$this->_cfg->labels['fri'],
+		$this->_cfg->labels['sat'],
+		$this->_cfg->labels['sun']
 	), $day) . ' ' . str_replace(array(
 		':00',
 		'-'
@@ -203,7 +203,7 @@ $legal_message = $this->linkify(
 ?>
 <div class="rsp"><p class="t-small c-light"><?= $legal_message ?></p></div>
 <?php } ?><?php } else { ?>
-<div class="rsp"><p class="t-small c-light">Legal mentions: Add a notice id for notes &gt; legal in jumpage.config.php to display your legal mentions here.</p></div>
+<!--div class="rsp"><p class="t-small c-light">Legal mentions: Add a notice id for notes &gt; legal in jumpage.config.php to display your legal mentions here.</p></div-->
 <?php } ?>
 </div>
 </footer>

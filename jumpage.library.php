@@ -118,11 +118,17 @@ class Jumpage
 		
 		if(APPLICATION_ENV == 'production')
 		{
-			$legalNoteId = $this->_initLegalNote($cfgfile);
-			
-			if(isset($this->_cfg->notes['legal']))
+			if(isset($this->_cfg->createLegalNote))
 			{
-				$this->_cfg->notes['legal'] = $legalNoteId;
+				if($this->_cfg->createLegalNote === true)
+				{
+					$legalNoteId = $this->_initLegalNote($cfgfile);
+					
+					if(isset($this->_cfg->notes['legal']))
+					{
+						$this->_cfg->notes['legal'] = $legalNoteId;
+					}
+				}
 			}
 			
 			if(isset($this->_cfg->createIcons))
@@ -1490,9 +1496,13 @@ class Jumpage
 	
 	public function linkify($str)
 	{
+		$str = str_replace(array(
+			'https://', 'http://'
+		), '', $str);
+		
 		return preg_replace(
 			'%\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s',
-			'<a href="$1">$1</a>',
+			'<a href="http://$1">$1</a>',
 			$str
 		);
 	}
