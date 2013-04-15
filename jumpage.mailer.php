@@ -1,7 +1,7 @@
 <?php
 /**
- *  jumpage Your web concept Framework
- *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
+ *  jumpage Framework
+ *  Copyright (C) 2012-2013 Bureau BLEEN OHG
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,21 +41,12 @@ function val($key)
 
 $validRequest = true;
 
-if(isset($_ENV['SCRIPT_URI']))
-{
-	$bits = parse_url($_ENV['SCRIPT_URI']);
-	$url = $bits['host'];
-}
-else
-{
-	$url = $_SERVER['HTTP_HOST'];
-}
+$url = $_SERVER['HTTP_HOST'];
+$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
 
-$referer = parse_url(
-	$_SERVER['HTTP_REFERER'], PHP_URL_HOST
-);
-
-$validRequest = $validRequest && $url == $referer && val('validated') == 'true';
+$validRequest = $validRequest
+	&& val('validated') == 'true'
+ 	&& $url == $referer;
 
 if(!$validRequest)
 {
@@ -74,7 +65,6 @@ $fromMail = $toMail; //val('email');
 $subject = val('subject');
 $textBody = val('message');
 
-$salutation = trim(val('salutation'));
 $senderName = trim(val('fullname'));
 $senderMail = trim(val('email'));
 
@@ -82,7 +72,7 @@ $replyToMail = $senderMail;
 $replyToName = stripslashes($senderName);
 
 $textBody = "\n" . stripslashes($textBody) . "\n\n\n"
-	. $salutation . " " . stripslashes($senderName) . "\n"
+	. stripslashes($senderName) . "\n"
 	. $senderMail . "\n\n\n"
 	. "---\njumpage Your web concept\nwww.jumpage.net";
 

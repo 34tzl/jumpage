@@ -606,9 +606,9 @@ html {
 
 body {
 	font: normal 16px/100% Arial, sans-serif;
-	background: rgb(238,238,238);
+	background: #F2F2F2;
 	letter-spacing: -.0625em;
-	color: rgb(48,48,48);
+	color: #303030;
 	
 	-webkit-text-size-adjust: none;
 }
@@ -638,27 +638,27 @@ h2 {
 }
 
 ::selection {
-	background: rgb(16,156,217);
+	background: #0F9CD9;
 	text-shadow: none;
 	color: #fff;
 }
 
 ::-moz-selection {
-	background: rgb(16,156,217);
+	background: #0F9CD9;
 	text-shadow: none;
 	color: #fff;
 }
 
 a:link {
-	-webkit-tap-highlight-color: rgb(0,158,224);
+	
 }
 
 a, a:active, a:visited {
 	text-decoration: none;
-	color: rgb(153,153,153);
+	color: #999999;
 }
 a:hover {
-	color: rgb(16,156,217);
+	color: #0F9CD9;
 }
 
 h2, .t-large {
@@ -676,7 +676,7 @@ h2, .t-large {
 }
 
 .c-dark {
-	color: rgb(153,153,153);
+	color: #999999;
 }
 
 .c-light {
@@ -802,7 +802,7 @@ h2, .t-large {
 }
 
 footer, .buttonbar {
-	background: rgb(48,48,48);
+	background: #303030;
 	padding-bottom: 1.5em;
 	min-height: 25%;
 }
@@ -849,7 +849,7 @@ footer a:hover {
 
 a.btn {
 	display: block;	
-	background: rgb(153,153,153);
+	background: #999999;
 	text-align: center;
 	color: #fff;
 	padding: .375em;
@@ -857,7 +857,7 @@ a.btn {
 }
 
 .btn:hover, .hvr:hover {
-	background: rgb(16,156,217);
+	background: #0F9CD9;
 	color: #fff;
 }
 

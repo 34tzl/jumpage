@@ -1,7 +1,7 @@
 <?php
 /**
- *  jumpage Your web concept Framework
- *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
+ *  jumpage Framework
+ *  Copyright (C) 2012-2013 Bureau BLEEN OHG
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ return array(
 	'fbAccessToken' => '[ACCESS_TOKEN_PLACEHOLDER]', /* YOUR LONGLIVE FACEBOOK PAGE ACCESS TOKEN jumpage.net/app */
 	'fbWallId' => '[WALL_ID_PLACEHOLDER]', /* YOUR FACEBOOK WALL ID e.g. 288129804540930 */
 	'fbAlbumId' => '', /* YOUR INITIAL FACEBOOK ALBUM ID e.g. 85329 */
-	'fbLocale' => 'de_DE',
+	'fbLocale' => 'en_US',
 	'fbDaysBack' => 30,
 	'fbMaxPosts' => 9,
 	'fbMinPostLen' => 0,
@@ -38,22 +38,7 @@ return array(
 	'googleAnalyticsWebpropertyId' => '', // UA-XXXXXXXX-X,
 	'googlePlacesLink' => '', // e.g. http://goo.gl/maps/5Gnko
 	'notes' => array(
-		'service' => '',
-		'contact' => '',
 		'legal' => '[LEGAL_NOTE_ID_PLACEHOLDER]' // e.g. 281379811951062
 	),
-	'labels' => array(
-		'MoreOnFacebook' => 'More on Facebook',
-		'OpeningTimes' => 'Open',
-		'mon' => 'Mo',
-		'tue' => 'Tu',
-		'wed' => 'We',
-		'thu' => 'Th',
-		'fri' => 'Fr',
-		'sat' => 'Sa',
-		'sun' => 'Su'
-	),
-	'mailsubject' => 'New message via jumpage contact form...',
-	'mailsuccess' => 'Thank you for your message. We will reply as soon as possible.',
 	'email' => ''
 );

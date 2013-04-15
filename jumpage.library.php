@@ -1,7 +1,7 @@
 <?php
 /**
- *  jumpage Your web concept Framework
- *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
+ *  jumpage Framework
+ *  Copyright (C) 2012-2013 Bureau BLEEN OHG
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ class Jumpage
 	public $posts = array();
 	
 	public $locale = 'en_US';
+	public $lc = array();
 	
 	public $version = 'jumpage Framework 0.9';
 	
@@ -71,6 +72,11 @@ class Jumpage
 			{
 				$config['fbWallId'] = $cfg['fbWallId'];
 			}
+			
+			if(!empty($cfg['fbLocale']))
+			{
+				$config['fbLocale'] = $cfg['fbLocale'];
+			}
 		}
 		
 		if(isset($config['fbAccessToken']))
@@ -84,6 +90,18 @@ class Jumpage
 		if(!empty($config['fbLocale']))
 		{
 			$this->locale = $config['fbLocale'];
+		}
+		
+		$lang = strtolower(substr($this->locale, 0, 2));
+		$lcfile = rtrim(__DIR__, '/') . '/locale/jumpage.' . $lang . '.php';
+		
+		if(!file_exists($lcfile))
+		{
+			$this->lc = include 'locale/jumpage.en.php';
+		}
+		else
+		{
+			$this->lc = include $lcfile;
 		}
 		
 		$this->_cfg = (object) $this->_initConfig($config);
@@ -338,11 +356,9 @@ class Jumpage
 	
 	private function _initImages()
 	{
-		$aid = $this->_cfg->fbWallId
-			. '_' . $this->_cfg->fbAlbumId;
-		
 		if(!empty($this->_cfg->fbAlbumId))
 		{
+			$aid = $this->_cfg->fbWallId . '_' . $this->_cfg->fbAlbumId;
 			$this->images = $this->getImages($aid, 'position', 24);
 		}
 		
@@ -664,7 +680,7 @@ class Jumpage
 		$itemLimit = intval($this->_cfg->fbMaxPosts);
 		
 		$fql = "SELECT type, created_time, message, description, attachment, permalink FROM stream "
-		. "WHERE post_id IN(SELECT post_id FROM stream WHERE type IN(46,80,247) AND NOT is_hidden "
+		. "WHERE is_published AND post_id IN(SELECT post_id FROM stream WHERE type IN(46,80,247) AND NOT is_hidden "
 		. "AND source_id='"
 		. $this->_cfg->fbWallId . "' AND actor_id='"
 		. $this->_cfg->fbWallId . "' AND created_time > "
@@ -999,6 +1015,11 @@ class Jumpage
 	{
 		if($aid == '')
 		{
+			if(empty($this->_cfg->fbAlbumId))
+			{
+				return array();
+			}
+			
 			$aid = $this->_cfg->fbWallId 
 				. '_' . $this->_cfg->fbAlbumId;
 		}
@@ -1017,9 +1038,18 @@ class Jumpage
 		if(in_array($aid, $albumtypes))
 		{
 			$fql = "SELECT aid FROM album WHERE type='" . $aid . "' AND owner='" 
-				. $this->_cfg->fbWallId . "' LIMIT 1";
+				. $this->_cfg->fbWallId . "'";
 			
 			$item = $this->getByFqlQuery($fql);
+			$aid = $item[0]->aid;
+		}
+		
+		if($aid == 'cover')
+		{
+			$fql = "SELECT aid FROM album WHERE type='normal' AND owner='"
+				. $this->_cfg->fbWallId . "' AND name='Cover Photos'";
+			
+			$item = $this->getByFqlQuery($fql, 'en_US');
 			$aid = $item[0]->aid;
 		}
 		
@@ -1331,7 +1361,7 @@ class Jumpage
 		return $prefix . trim($value) . $suffix;
 	}
 	
-	public function getByFqlQuery($query)
+	public function getByFqlQuery($query, $lc='')
 	{
 		if($this->_cfg->fbAccessToken != '')
 		{
@@ -1339,7 +1369,7 @@ class Jumpage
 				. $this->_cfg->fbAccessToken . '&format=json-strings&q='
 				. urlencode($query);
 			
-			if($result = $this->url_get_contents($url))
+			if($result = $this->url_get_contents($url, false, null, false, $lc))
 			{
 				return $result->data;
 			}
@@ -1411,7 +1441,7 @@ class Jumpage
 		));
 	}
 	
-	public function url_get_contents($url, $use_include_path=false, $context=null, $debug=false)
+	public function url_get_contents($url, $use_include_path=false, $context=null, $debug=false, $lc='')
 	{
 		if(strpos($url, '?') === false)
 		{
@@ -1422,7 +1452,14 @@ class Jumpage
 			$url .= '&format=json-strings';
 		}
 		
-		$url .= '&locale=' .  $this->locale;
+		if($lc == '')
+		{
+			$url .= '&locale=' .  $this->locale;
+		}
+		else
+		{
+			$url .= '&locale=' .  $lc;
+		}
 		
 		$contents = '';
 		
@@ -1507,6 +1544,30 @@ class Jumpage
 		);
 	}
 	
+	public function localize($lckey, $default='', $prefix='', $suffix='', $linkify=false)
+	{
+		if(empty($this->lc[$lckey]))
+		{
+			if($default != '')
+			{
+				return $prefix . $default . $suffix;
+			}
+			else
+			{
+				return $default;
+			}
+		}
+		
+		$value = $this->lc[$lckey];
+		
+		if($linkify)
+		{
+			$value = $this->linkify($value);
+		}
+		
+		return $prefix . $value . $suffix;
+	}
+	
 	private function _replaceSpecialCharacters($str)
 	{
 // 		$str = str_replace(array(
@@ -1549,9 +1610,9 @@ class Jumpage
 				"\xe2\x80\x93" => "-",
 				"\xc2\xb0"	   => "°",
 				"\xc2\xba"     => "°",
-				"\xc3\xb1"	   => "&#241;",
-				"\x96"		   => "&#241;",
-				"\xe2\x81\x83" => '&bull;',
+// 				"\xc3\xb1"	   => "&#241;",
+// 				"\x96"		   => "&#241;",
+// 				"\xe2\x81\x83" => '&bull;',
 				"\xd5" => "'",
 				"\xe2\x80\xa6" => "..."
 		);

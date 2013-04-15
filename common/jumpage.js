@@ -197,8 +197,8 @@
 		var _setMarker = function(position)
 		{
 			var icon = new google.maps.MarkerImage('common/marker.png',
-				new google.maps.Size(20,34), new google.maps.Point(0,0),
-				new google.maps.Point(10,34));
+				new google.maps.Size(24,32), new google.maps.Point(0,0),
+				new google.maps.Point(12,32));
 			
 			var marker = new google.maps.Marker({
 				position: position,

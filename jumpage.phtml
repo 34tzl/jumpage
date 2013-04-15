@@ -1,7 +1,7 @@
 <?php
 /**
- *  jumpage Your web concept Framework
- *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
+ *  jumpage Framework
+ *  Copyright (C) 2012-2013 Bureau BLEEN OHG
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,13 +37,12 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 <title><?= $this->getField('name', 'New jumpage at work') ?></title>
 <?= $this->getField('about', '', '<meta name="description" content="', '" />') ?>
 
-
 <meta name="generator" content="<?= $this->version ?>" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 
 <meta property="og:title" content="<?= $this->getField('name') ?>" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="<?= 'http://' . $this->baseurl . '/' ?>" />
+<meta property="og:url" content="<?= 'http://' . $this->baseurl . '/'  ?>" />
 <meta property="og:image" content="<?= 'http://' . $this->baseurl . '/open-graph-icon.jpg' ?>" />
 <?= $this->getField('about', '', '<meta property="og:description" content="', '" />') ?>
 
@@ -54,6 +53,9 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 <link rel="stylesheet" href="common/jumpage.css" />
 
 <script src="common/modernizr-2.6.2.min.js"></script>
+
+<base target="_top" />
+
 </head>
 <body>
 
@@ -89,7 +91,7 @@ class="ir fit" src="<?= $cover->src
 ?>" alt="" /></a><?php } ?><?php } ?><?php if($post->message !== '') { 
 ?><div class="txpdg bg-light"><p class=" t-small">
 <?= $post->message ?> <a href="<?= htmlentities($post->href) 
-?>"><?= $this->_cfg->labels['MoreOnFacebook'] ?></a></p></div><?php } ?></div>
+?>"><?= $this->localize('MoreOnFacebook') ?></a></p></div><?php } ?></div>
 <?php } ?>
 <div class="clr"></div>
 </section>
@@ -106,13 +108,27 @@ class="ir fit" src="<?= $cover->src
 <?php if($showGoogleMaps) { ?>
 <div id="google_maps"></div>
 <?php } ?>
+<?php 
+$website = trim($this->getField('website'));
+if($website == '')
+{
+	$website = '<span class="org bold">' . $this->getField('name') . '</span>';	
+}
+else
+{
+	$website = '<a title="' 
+ 		. $this->getField('name') 
+		.'" class="url org bold" href="http://' 
+ 		. str_replace('http://', '', $this->getField('website')) 
+		. '" rel="bookmark">'
+ 		. $this->getField('name')
+		. '</a>';
+}
+?>
 <div class="cntr plr">
-<div class="tbl">
-<div class="row">
+<div class="tbl"><div class="row">
 <div class="col txpdt vcard pdr" id="hcard">
-<div class="t-medium c-light"><a title="<?= $this->getField('name') 
-?>" class="url org bold" href="http://<?= str_replace('http://', '', $this->getField('website')) 
-?>" rel="bookmark"><?= $this->getField('name') ?></a>
+<div class="t-medium c-light"><?= $website ?>
 <div class="adr">
 <?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 
 ?> <?= $this->getField('zip', '', '<span class="postal-code">', '</span>') 
@@ -128,7 +144,7 @@ class="ir fit" src="<?= $cover->src
 <div class="col txpdt pdl"><div class="t-medium c-light">
 
 <?php $openingTimes = $this->getOpeningTimes(); if(count($openingTimes['time']) > 0){ ?>
-<?= $this->_cfg->labels['OpeningTimes'] ?><br />
+<?= $this->localize('OpeningTimes') ?><br />
 <?php
 
 $myTimes = array();
@@ -166,13 +182,13 @@ foreach ($openingTimes['time'] as $openingTime)
 		'sat',
 		'sun'
 	), array(
-		$this->_cfg->labels['mon'],
-		$this->_cfg->labels['tue'],
-		$this->_cfg->labels['wed'],
-		$this->_cfg->labels['thu'],
-		$this->_cfg->labels['fri'],
-		$this->_cfg->labels['sat'],
-		$this->_cfg->labels['sun']
+		$this->localize('mon'),
+		$this->localize('tue'),
+		$this->localize('wed'),
+		$this->localize('thu'),
+		$this->localize('fri'),
+		$this->localize('sat'),
+		$this->localize('sun')
 	), $day) . ' ' . str_replace(array(
 		':00',
 		'-'
@@ -197,9 +213,7 @@ if(!empty($this->_cfg->notes['legal']) && is_numeric($this->_cfg->notes['legal']
 if($legal =  $this->getNote($this->_cfg->notes['legal'], true, true))
 {
 $legal_subject = $legal->subject;
-$legal_message = $this->linkify(
-	$legal->message
-);
+$legal_message = $this->linkify($legal->message);
 ?>
 <div class="rsp"><p class="t-small c-light"><?= $legal_message ?></p></div>
 <?php } ?><?php } else { ?>
@@ -214,8 +228,8 @@ For more information and how to use it, visit jumpage.net
 -->
 
 <div class="buttonbar noprint">
-<div class="cntr buttons"><a class="pdr" title="Folge <?=  $this->getField('name') 
-?> auf Facebook" href="<?= $this->getField('link') ?>"><img 
+<div class="cntr buttons"><a class="pdr" title="<?= $this->localize('Follow') ?> <?=  $this->getField('name') 
+?> <?= $this->localize('onFacebook') ?>" href="<?= $this->getField('link') ?>"><img 
 class="hvr" src="common/facebook.png" width="48" height="48" alt="Facebook" /></a><a 
 class="pdl" title="Hi! I'm a jumpage" href="http://jumpage.net/"><img class="hvr"
 src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="topbtn"><a 

@@ -1,7 +1,7 @@
 <?php
 /**
- *  jumpage Your web concept Framework
- *  Copyright (C) 2012-2013 Bureau BLEEN Design Development
+ *  jumpage Framework
+ *  Copyright (C) 2012-2013 Bureau BLEEN OHG
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,6 +47,10 @@ defined('PAGE_WALL_ID') || define(
 	'PAGE_WALL_ID', false
 );
 
+defined('FACEBOOK_PAGE_LOCALE') || define(
+	'FACEBOOK_PAGE_LOCALE', false
+);
+
 $_JUMPAGE_CONFIG_INFO = false;
 
 if(false !== PAGE_ACCESS_TOKEN && PAGE_WALL_ID)
@@ -55,6 +59,11 @@ if(false !== PAGE_ACCESS_TOKEN && PAGE_WALL_ID)
 		'fbAccessToken' => PAGE_ACCESS_TOKEN,
 		'fbWallId' => PAGE_WALL_ID
 	);
+	
+	if(false !== FACEBOOK_PAGE_LOCALE)
+	{
+		$_JUMPAGE_CONFIG_INFO['fbLocale'] = FACEBOOK_PAGE_LOCALE;
+	}
 }
 
 $cache_file_name = rtrim(dirname(JUMPAGE_CONFIG_PATH), '/')
