@@ -97,10 +97,11 @@ class="ir fit" src="<?= $cover->src
 </section>
 <?php } ?>
 
-<div class="noprint followbtn"><a title="Folge <?= $this->getField('name') 
-?> auf Facebook" href="<?= $this->getField('link') 
-?>" class="btn t-medium c-light">Folge <?= $this->getField('name') 
-?> auf Facebook</a></div>
+<div class="noprint followbtn"><a href="<?= $this->getField('link') 
+?>" class="btn t-medium c-light"><?= $this->localize('Follow') 
+?> <?=  $this->getField('name') 
+?> <?= $this->localize('onFacebook') 
+?></a></div>
 
 <?= $this->getField('description', '', '<section><div class="rsp ptz"><p class="t-medium">', '</p></div></section>', true) ?>
 
