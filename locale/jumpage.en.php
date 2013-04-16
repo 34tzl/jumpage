@@ -30,10 +30,16 @@ return array(
 	'Current' => 'Current',
 	'Follow' => 'Follow',
 	'onFacebook' => 'on Facebook',
+	'Gallery' => 'Gallery',
+	'Contact' => 'Contact',
 	
 	'MessageTo' => 'Message to',
+	'MailName' => 'Name',
+	'Email' => 'Email',
+	'SendMail' => 'Send mail',
 	'MailSubject' => 'New message via jumpage contact form',
 	'MailSuccess' => 'Thank you for your message. We will reply as soon as possible',
+	'RouteWithGoogle' => 'Route with Google Maps',
 	
 	'mon' => 'Mo',
 	'tue' => 'Tu',

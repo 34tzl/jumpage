@@ -836,7 +836,7 @@ class Jumpage
 		$fql = array(
 			"albums" => "SELECT aid, cover_pid, photo_count, name, description, link FROM album "
 				. "WHERE visible='everyone' AND photo_count>0 AND owner='" . $this->_cfg->fbWallId . "' "
-				. "AND " . $where,
+				. "AND " . $where . "",
 			"covers" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
 				. "FROM photo WHERE pid IN(SELECT cover_pid FROM #albums)",
 			"images" => "SELECT aid, src_big, src_big_width, src_big_height, caption "
@@ -1011,6 +1011,16 @@ class Jumpage
 	
 // 	}
 	
+	public function getAlbumIdByName($fbname)
+	{
+		$fql = "SELECT aid FROM album WHERE type='normal' AND owner='"
+			. $this->_cfg->fbWallId . "' AND name='" . $fbname . "'";
+			
+		$item = $this->getByFqlQuery($fql, 'en_US');
+		
+		return $item[0]->aid;
+	}
+	
 	public function getImages($aid='', $order='created DESC', $limit=9, $width=940, $equal_w=false)
 	{
 		if($aid == '')
@@ -1046,11 +1056,7 @@ class Jumpage
 		
 		if($aid == 'cover')
 		{
-			$fql = "SELECT aid FROM album WHERE type='normal' AND owner='"
-				. $this->_cfg->fbWallId . "' AND name='Cover Photos'";
-			
-			$item = $this->getByFqlQuery($fql, 'en_US');
-			$aid = $item[0]->aid;
+			$aid = $this->getAlbumIdByName('Cover Photos');
 		}
 		
 		$albums = explode(',', $aid);

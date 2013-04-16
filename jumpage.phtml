@@ -242,12 +242,12 @@ href="#top"><img class="hvr" src="common/up.png" width="48" height="48" alt="Up"
 <script src="//maps.google.com/maps/api/js?sensor=false"></script>
 <?php } ?>
 <script>!window.jQuery && document.write(unescape('%3Cscript '
-+ 'src="common/jquery-1.9.1.min.js"%3E%3C/script%3E'
-)); var googleMapsConfig = [];
++ 'src="common/jquery-1.9.1.min.js"%3E%3C/script%3E'));</script><script>
+var googleMapsConfig = [];
 googleMapsConfig['Lat'] = <?= floatval($this->getField('latitude')) ?>;
 googleMapsConfig['Lng'] = <?= floatval($this->getField('longitude')) ?>;
-googleMapsConfig['address'] = '<?= $this->getField('street') . ',' 
-	. $this->getField('zip') . ',' . $this->getField('city') ?>';
+googleMapsConfig['address'] = '<?= urlencode($this->getField('street')) . ',' 
+	. $this->getField('zip') . ',' . urlencode($this->getField('city')) ?>';
 googleMapsConfig['href'] = '<?= $this->_cfg->googlePlacesLink ?>';
 googleMapsConfig['title'] = 'Route planen mit Google Maps...';
 googleMapsConfig['zoom'] = 15;
