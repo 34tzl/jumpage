@@ -134,18 +134,15 @@ class Jumpage
 		$this->_initPosts();
 		$this->_initImages();
 		
-		if(APPLICATION_ENV == 'production')
+		if(!JUMPAGE_PREVIEW_MODE && APPLICATION_ENV == 'production')
 		{
-			if(isset($this->_cfg->createLegalNote))
+			if(!empty($this->_cfg->createLegalNote))
 			{
-				if($this->_cfg->createLegalNote === true)
+				$legalNoteId = $this->_initLegalNote($cfgfile);
+				
+				if(!empty($this->_cfg->notes['legal']))
 				{
-					$legalNoteId = $this->_initLegalNote($cfgfile);
-					
-					if(isset($this->_cfg->notes['legal']))
-					{
-						$this->_cfg->notes['legal'] = $legalNoteId;
-					}
+					$this->_cfg->notes['legal'] = $legalNoteId;
 				}
 			}
 			
@@ -156,7 +153,6 @@ class Jumpage
 					$this->_initGraphTouchFavIcons();
 				}
 			}
-			
 		}
 		
 		if($template != '')
@@ -204,26 +200,43 @@ class Jumpage
 		$legalNoteTitle = 'Impressum';
 		$legalNoteMsg = '';
 		
-		$fql = "SELECT note_id FROM note WHERE uid='" . $fbWallId 
-			. "' AND strpos(title, '" . $legalNoteTitle . "') >= 0";
+// 		$fql = "SELECT note_id FROM note WHERE uid='" . $fbWallId 
+// 			. "' AND strpos(title, '" . $legalNoteTitle . "') >= 0";
 		
-		$item = $this->getByFqlQuery($fql);
+// 		$item = $this->getByFqlQuery($fql);
 		
-		if(isset($item[0]->note_id))
+// 		if(isset($item[0]->note_id))
+// 		{
+// 			$fbLegalNoteId = $item[0]->note_id;
+// 		}
+		
+		$fql = "SELECT attachment.href FROM stream WHERE source_id='"
+			. $fbWallId . "' AND actor_id='"
+			. $fbWallId . "' AND type=66 "
+			. "AND app_id=330339440353654"; // jumpage
+		
+		if($item = $this->getByFqlQuery($fql))
 		{
-			$fbLegalNoteId = $item[0]->note_id;
+			if(!empty($item[0]->attachment->href))
+			{
+				$fbLegalNoteId = strval(ltrim(
+					strrchr($item[0]->attachment->href, '/'),
+				'/'));
+			}
 		}
 		
 		if($fbLegalNoteId == '')
 		{
-			$legalNoteMsg = 'jumpage: Edit or delete your legal note here ' .  rtrim($this->getField('link'), '/') . '/notes';
+			$legalNoteTitle = $this->localize('WelcomeToJumpageNoteTitle', 'Welcome to jumpage');
+			$legalNoteMsg = $this->localize('WelcomeToJumpageNoteContent', 
+				'jumpage is easy: You publish on Facebook. jumpage publishes your website.');
 				
 			$url = $this->_cfg->secureGraphUrl . $this->_cfg->fbUserName . '/notes';
 			
 			$fields = array(
-					'access_token' => urlencode($this->_cfg->fbAccessToken),
-					'subject' => urlencode($legalNoteTitle),
-					'message' => urlencode($legalNoteMsg)
+				'access_token' => urlencode($this->_cfg->fbAccessToken),
+				'subject' => urlencode($legalNoteTitle),
+				'message' => urlencode($legalNoteMsg)
 			);
 			
 			$fields_string = '';
@@ -258,6 +271,7 @@ class Jumpage
 		}
 		
 		$fbLegalNoteId = trim($fbLegalNoteId);
+		
 		if(is_numeric($fbLegalNoteId))
 		{
 			$config = file_get_contents($cfgfile);
@@ -351,6 +365,17 @@ class Jumpage
 			
 			$this->profile['categories'] = $helper;
 		}
+		
+			
+		// Map fields for description
+		if(empty($this->profile['description']))
+		{
+			if(!empty($this->profile['bio']))
+			{
+				$this->profile['description'] = trim($this->profile['bio']);
+			}
+		}
+		
 		
 	}
 	
@@ -1137,11 +1162,16 @@ class Jumpage
 		
 		if($this->_cfg->fbAccessToken != '')
 		{
-			$notes = $this->url_get_contents(
-				$this->_cfg->secureGraphUrl
-					. $this->_cfg->fbUserName . '/notes?access_token='
-					. $this->_cfg->fbAccessToken
-			);
+			$fql = "SELECT note_id, title, content FROM note WHERE uid='"
+				. $this->_cfg->fbUserName . "'";
+			
+			$notes = $this->getByFqlQuery($fql);
+			
+// 			$notes = $this->url_get_contents(
+// 				$this->_cfg->secureGraphUrl
+// 				. $this->_cfg->fbUserName . '/notes?access_token='
+// 				. $this->_cfg->fbAccessToken
+// 			);
 		}
 		
 		return $notes;
@@ -1195,44 +1225,49 @@ class Jumpage
 			$this->_notes = $this->getNotes();
 		}
 		
-		foreach($this->_notes->data as $note)
+		foreach($this->_notes as $note)
 		{
-			if($note->id == $fbNoteId)
+			if($note->note_id == $fbNoteId)
 			{
-				$note->message = $this->_replaceSpecialCharacters($note->message);
+				$note->content = $this->_replaceSpecialCharacters($note->content);
 				
 				if($stripTags==true)
 				{
-					$note->message = preg_replace('/<\/p>?.<p>/i', "\n", $note->message);
-					$note->message = strip_tags($note->message);
+					$note->content = preg_replace('/<\/p>?.<p>/i', "\n", $note->content);
+					$note->content = strip_tags($note->content);
 				}
 				else
 				{
-					$note->message = str_replace('</p><p> </p><p>', '<br /><br />', $note->message);
-					$note->message = str_replace(array('<div><p>','</p></div>', '<p>'), '', $note->message);
-					$note->message = str_replace('</p>', '<br />', $note->message);
+// 					$note->content = str_replace('</p><p> </p><p>', '<br /><br />', $note->content);
+// 					$note->content = str_replace(array('<div><p>','</p></div>', '<p>'), '', $note->content);
+// 					$note->content = str_replace('</p>', '<br />', $note->content);
 					
-					if($className == '')
-					{
-						$note->message = '<p>' . $note->message . '</p>';
-					}
-					else
-					{
-						$note->message = '<p class="' . $className . '">' . $note->message . '</p>';
-					}
-// 					$note->message = '<p>' . str_replace(array(
+// 					if($className == '')
+// 					{
+// 						$note->content = '<p>' . $note->content . '</p>';
+// 					}
+// 					else
+// 					{
+// 						$note->content = '<p class="' . $className . '">' . $note->content . '</p>';
+// 					}
+
+// 					$note->content = '<p>' . str_replace(array(
 // 							'<div><p>','</p></div>', '<p> </p>', '<p></p>'
-// 					), '', $note->message) . '</p>';
+// 					), '', $note->content) . '</p>';
 				}
 				
 				if($lineBreaks)
 				{
-					$note->message = nl2br($note->message);
+					$note->content = nl2br($note->content);
 				}
 				
-				$note->message = preg_replace('/\s+/', ' ', $note->message);
+				$note->content = preg_replace('/\s+/', ' ', $note->content);
 				
-				return $note;
+				return (object) array(
+					'id' => strval($fbNoteId),
+					'subject' => $note->title,
+					'message' => $note->content
+				);
 				
 				break;
 			}
@@ -1367,13 +1402,13 @@ class Jumpage
 		return $prefix . trim($value) . $suffix;
 	}
 	
-	public function getByFqlQuery($query, $lc='')
+	public function getByFqlQuery($fql, $lc='')
 	{
 		if($this->_cfg->fbAccessToken != '')
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
 				. $this->_cfg->fbAccessToken . '&format=json-strings&q='
-				. urlencode($query);
+				. urlencode($fql);
 			
 			if($result = $this->url_get_contents($url, false, null, false, $lc))
 			{
@@ -1391,7 +1426,7 @@ class Jumpage
 			
 // 			$context = stream_context_create($options);
 // 			$url = $this->_cfg->fqlProxyUrl . '?q=' 
-// 				. urlencode($query);
+// 				. urlencode($fql);
 			
 // 			if($result = @$this->url_get_contents($url, false, $context))
 // 			{
@@ -1539,13 +1574,13 @@ class Jumpage
 	
 	public function linkify($str)
 	{
-		$str = str_replace(array(
-			'https://', 'http://'
-		), '', $str);
+// 		$str = str_replace(array(
+// 			'https://', 'http://'
+// 		), '', $str);
 		
 		return preg_replace(
 			'%\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s',
-			'<a href="http://$1">$1</a>',
+			'<a href="$1">$1</a>',
 			$str
 		);
 	}
