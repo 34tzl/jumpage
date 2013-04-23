@@ -30,7 +30,7 @@ return array(
 'Current' => 'Current',
 'Follow' => 'Follow',
 'onFacebook' => 'on Facebook',
-'Gallery' => 'Gallery',
+'Gallery' => 'Media',
 'Contact' => 'Contact',
 
 'MessageTo' => 'Message to',

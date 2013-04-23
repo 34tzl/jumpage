@@ -1,21 +1,14 @@
 
-SetEnv APPLICATION_ENV production
-
+#SetEnv APPLICATION_ENV production
 #DirectoryIndex index.php
 
 <IfModule mod_headers.c>
   Header set X-UA-Compatible "IE=Edge,chrome=1"
-  # mod_headers can't match by content-type, but we don't want to send this header on *everything*...
-  <FilesMatch "\.(js|css|gif|png|jpe?g|pdf|xml|oga|ogg|m4a|ogv|mp4|m4v|webm|svg|svgz|eot|ttf|otf|woff|ico|webp|appcache|manifest|htc|crx|oex|xpi|safariextz|vcf)$" >
-    Header unset X-UA-Compatible
-  </FilesMatch>
 </IfModule>
 
 <IfModule mod_rewrite.c>
   Options +FollowSymlinks
-# Options +SymLinksIfOwnerMatch
   RewriteEngine On
-# RewriteBase /
 
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
@@ -28,37 +21,10 @@ SetEnv APPLICATION_ENV production
 
 Options -MultiViews
 
-
-# Use UTF-8 encoding for anything served text/plain or text/html
 AddDefaultCharset utf-8
 
-# Force UTF-8 for a number of file formats
-AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
-
-
-# ----------------------------------------------------------------------
-# A little more security
-# ----------------------------------------------------------------------
-
-# To avoid displaying the exact version number of Apache being used, add the
-# following to httpd.conf (it will not work in .htaccess):
-# ServerTokens Prod
-
-# "-Indexes" will have Apache block users from browsing folders without a
-# default document Usually you should leave this activated, because you
-# shouldn't allow everybody to surf through every folder on your server (which
-# includes rather private places like CMS system folders).
 <IfModule mod_autoindex.c>
   Options -Indexes
-</IfModule>
-
-# Block access to "hidden" directories or files whose names begin with a
-# period. This includes directories used by version control systems such as
-# Subversion or Git.
-<IfModule mod_rewrite.c>
-  RewriteCond %{SCRIPT_FILENAME} -d [OR]
-  RewriteCond %{SCRIPT_FILENAME} -f
-  RewriteRule "(^|/)\." - [F]
 </IfModule>
 
 
