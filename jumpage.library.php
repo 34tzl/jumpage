@@ -150,7 +150,11 @@ class Jumpage
 			{
 				if($this->_cfg->createIcons)
 				{
-					$this->_initGraphTouchFavIcons();
+					try
+					{
+						$this->_initGraphTouchFavIcons();
+					}
+					catch(Exception $e){}
 				}
 			}
 		}
@@ -376,7 +380,7 @@ class Jumpage
 			}
 		}
 		
-		
+		$this->profile['about'] = htmlentities($this->profile['about']);
 	}
 	
 	private function _initImages()
@@ -1507,10 +1511,10 @@ class Jumpage
 		try {
 // 	    if(function_exists('url_get_contents'))
 // 	    {
-	    	if($this->_bool('allow_url_fopen'))
-	    	{
-	    		$contents = @file_get_contents($url, $use_include_path, $context);
-	    	}
+// 	    	if($this->_bool('allow_url_fopen'))
+// 	    	{
+// 	    		$contents = @file_get_contents($url, $use_include_path, $context);
+// 	    	}
 // 	    }
 		
 	    if($contents == '')

@@ -51,6 +51,11 @@ defined('FACEBOOK_PAGE_LOCALE') || define(
 	'FACEBOOK_PAGE_LOCALE', false
 );
 
+if(!in_array('curl', get_loaded_extensions()))
+{
+	exit('PHP cURL not loaded');
+}
+
 $_JUMPAGE_CONFIG_INFO = false;
 
 if(false !== PAGE_ACCESS_TOKEN && PAGE_WALL_ID)

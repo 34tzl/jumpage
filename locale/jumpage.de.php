@@ -87,6 +87,8 @@ return array(
 
 - Tipp: Lade Bilder immer mit der Option \"Hohe Auflösung\" auf Facebook hoch. Das steigert ebenso die Qualität deiner jumpage.
 
+- Du kannst Alben und Bilder auf Facebook beliebig sortieren. jumpage übernimmt diese von dir vorgegebene Reihenfolge.
+
 - Deine jumpage passt sich automatisch an jeden Screen an. Dank der responsiven Architektur ersetzt sie damit nicht nur die Desktop Website, sondern auch die Mobile Website und fungiert sogar als Webapp.
 
 - Du veröffentlichst auf Facebook. jumpage veröffentlicht deine Website.
