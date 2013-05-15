@@ -1050,7 +1050,7 @@ class Jumpage
 		return $item[0]->aid;
 	}
 	
-	public function getImages($aid='', $order='created DESC', $limit=9, $width=940, $equal_w=false)
+	public function getImages($aid='', $order='created DESC', $limit=9, $width=850, $equal_w=false)
 	{
 		if($aid == '')
 		{
@@ -1191,7 +1191,7 @@ class Jumpage
 	
 	}
 	
-	public function getImage($fbImageId, $minImageWidth=960)
+	public function getImage($fbImageId, $minImageWidth=850)
 	{
 		if($fbImageId == '') return false;
 		
