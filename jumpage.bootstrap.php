@@ -23,8 +23,13 @@
  *  Token on jumpage.net/app
  *  
  */
+defined('__DIR__') || define(
+	'__DIR__', dirname(__FILE__)
+);
+
 defined('APPLICATION_ENV') || define(
-	'APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production')
+	'APPLICATION_ENV', (getenv('APPLICATION_ENV') 
+		? getenv('APPLICATION_ENV') : 'production')
 );
 
 defined('JUMPAGE_CONFIG_PATH') || define(

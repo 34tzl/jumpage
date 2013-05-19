@@ -190,6 +190,7 @@ class Jumpage
 	
 	private function _initLegalNote($cfgfile)
 	{
+        
 		$fbLegalNoteId = trim(str_replace(
 			'[LEGAL_NOTE_ID_PLACEHOLDER]', '', 
 			$this->_cfg->notes['legal']
@@ -204,15 +205,15 @@ class Jumpage
 		$legalNoteTitle = 'Impressum';
 		$legalNoteMsg = '';
 		
-// 		$fql = "SELECT note_id FROM note WHERE uid='" . $fbWallId 
-// 			. "' AND strpos(title, '" . $legalNoteTitle . "') >= 0";
+		$fql = "SELECT note_id FROM note WHERE uid='" . $fbWallId 
+			. "' AND strpos(title, '" . $legalNoteTitle . "') >= 0";
 		
-// 		$item = $this->getByFqlQuery($fql);
+		$item = $this->getByFqlQuery($fql);
 		
-// 		if(isset($item[0]->note_id))
-// 		{
-// 			$fbLegalNoteId = $item[0]->note_id;
-// 		}
+		if(isset($item[0]->note_id))
+		{
+			$fbLegalNoteId = $item[0]->note_id;
+		}
 		
 		$fql = "SELECT attachment.href FROM stream WHERE source_id='"
 			. $fbWallId . "' AND actor_id='"
@@ -336,7 +337,7 @@ class Jumpage
 		
 		$fql = 'SELECT ' . $basePageFields . ' FROM page WHERE page_id=' 
 			. $this->_cfg->fbWallId;
-		
+			
 		$items = $this->getByFqlQuery($fql);
 		
 		foreach($items[0] as $key => $value)
@@ -398,10 +399,9 @@ class Jumpage
 	
 	private function _initGraphTouchFavIcons()
 	{
-		$url = $this->_cfg->secureGraphUrl
+		$url = $this->_cfg->defaultGraphUrl
 			. $this->_cfg->fbUserName 
-			. '/picture?type=large&access_token=' 
-			. $this->_cfg->fbAccessToken;
+			. '/picture?type=large';
 		
 		$imgtmp = './fbpicture.temp.jpg';
 	
@@ -415,6 +415,7 @@ class Jumpage
 		curl_exec($ch);
 		
 		curl_close($ch);
+		
 		fclose($fp);
 		
 		$imgnfo = getimagesize($imgtmp);
@@ -1411,7 +1412,7 @@ class Jumpage
 		if($this->_cfg->fbAccessToken != '')
 		{
 			$url = $this->_cfg->secureGraphUrl . '/fql?access_token='
-				. $this->_cfg->fbAccessToken . '&format=json-strings&q='
+				. $this->_cfg->fbAccessToken . '&q='
 				. urlencode($fql);
 			
 			if($result = $this->url_get_contents($url, false, null, false, $lc))
@@ -1509,13 +1510,14 @@ class Jumpage
 		$contents = '';
 		
 		try {
-// 	    if(function_exists('url_get_contents'))
-// 	    {
-// 	    	if($this->_bool('allow_url_fopen'))
-// 	    	{
-// 	    		$contents = @file_get_contents($url, $use_include_path, $context);
-// 	    	}
-// 	    }
+		
+ 	    if(function_exists('file_get_contents'))
+ 	    {
+ 	    	if($this->_bool('allow_url_fopen'))
+ 	    	{
+ 	    		$contents = @file_get_contents($url, $use_include_path, $context);
+ 	    	}
+ 	    }
 		
 	    if($contents == '')
 	    {
@@ -1534,8 +1536,9 @@ class Jumpage
 	    	curl_setopt($c, CURLOPT_URL, $url);
 	    	 
 	    	$contents = curl_exec($c);
-	    	$err  = curl_getinfo($c, CURLINFO_HTTP_CODE);
-	    	 
+	    	$err = curl_getinfo($c, CURLINFO_HTTP_CODE);
+	    	
+	    	
 	    	curl_close($c);
 	    }
 	    
@@ -1551,6 +1554,7 @@ class Jumpage
 	    
 	    if($contents != '')
 	    {
+	    
 	    	if($contents = json_decode($contents))
 	    	{
 	    		return $contents;
