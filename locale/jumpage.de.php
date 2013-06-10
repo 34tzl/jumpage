@@ -39,7 +39,7 @@ return array(
 'SendMail' => 'Nachricht senden',
 'MailSubject' => 'Neue Nachricht via jumpage Kontaktformular',
 'MailSuccess' => 'Danke für die Nachricht, die wir schnellstmöglich beantworten',
-'RouteWithGoogle' => 'Route planen mit Google Maps',
+'RouteWithGoogle' => 'Route planen mit Google Maps...',
 
 'mon' => 'Mo',
 'tue' => 'Di',
@@ -93,9 +93,9 @@ return array(
 
 - Du veröffentlichst auf Facebook. jumpage veröffentlicht deine Website.
 
-Für alle Fragen zu jumpage komm einfach in die jumpage Gruppe auf Facebook. Wir freuen uns auf dein Feedback. http://jumpage.net/support
+Für alle Fragen zu jumpage komm einfach in die jumpage Gruppe auf Facebook. Wir freuen uns auf dein Feedback. www.fb.com/groups/jumpage
 
-Zu einfach? jumpage Your web concept http://de.jumpage.net",
+Zu einfach? jumpage Your web concept www.jumpage.de",
 
 'JumpageWebsiteTitle' => 'Hi! Ich bin eine jumpage.',
 'JumpageWebsiteUrl' => 'de.jumpage.net'

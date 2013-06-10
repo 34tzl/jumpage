@@ -89,7 +89,7 @@ class="ir fit" src="<?= $cover->src
 ?>" width="<?= $post->image->width 
 ?>" height="<?= $post->image->height 
 ?>" alt="" /></a><?php } ?><?php } ?><?php if($post->message !== '') { 
-?><div class="txpdg bg-light"><p class=" t-small">
+?><div class="txpdg"><p class=" t-small">
 <?= $post->message ?> <a href="<?= htmlentities($post->href) 
 ?>"><?= $this->localize('MoreOnFacebook') ?></a></p></div><?php } ?></div>
 <?php } ?>
@@ -129,7 +129,7 @@ else
 <div class="cntr plr">
 <div class="tbl"><div class="row">
 <div class="col txpdt vcard pdr" id="hcard">
-<div class="t-medium c-light"><?= $website ?>
+<div class="t-medium"><?= $website ?>
 <div class="adr">
 <?= $this->getField('street', '', '<span class="street-address">', '</span><br />') 
 ?> <?= $this->getField('zip', '', '<span class="postal-code">', '</span>') 
@@ -216,15 +216,11 @@ if($legal =  $this->getNote($this->_cfg->notes['legal'], true, true))
 $legal_subject = $legal->subject;
 $legal_message = $this->linkify($legal->message);
 ?>
-<div class="rsp"><p class="t-small c-light"><?= $legal_message ?></p></div>
-<?php }} ?>
+<div class="pdt"><div class="t-small"><?= $legal_message ?></div></div>
+<?php } ?>
+<?php } ?>
 </div>
-</footer>
-
-<!--
-This website was built with jumpage Your web concept - A Bureau BLEEN project
-For more information and how to use it, visit jumpage.net
--->
+</div>
 
 <div class="buttonbar noprint">
 <div class="cntr buttons"><a class="pdr" title="<?= $this->localize('Follow') ?> <?=  $this->getField('name') 
@@ -235,6 +231,12 @@ class="pdl" title="<?= $this->localize('JumpageWebsiteTitle')
 src="common/jumpage.png" width="48" height="48" alt="jumpage" /></a><div class="topbtn"><a 
 href="#top"><img class="hvr" src="common/up.png" width="48" height="48" alt="Up" /></a></div>
 </div></div><div class="mobile"></div>
+</footer>
+
+<!--
+This website was built with jumpage Your web concept - A Bureau BLEEN project
+For more information and how to use it, visit jumpage.net
+-->
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <?php if($showGoogleMaps) { ?>
@@ -248,8 +250,9 @@ googleMapsConfig['Lng'] = <?= floatval($this->getField('longitude')) ?>;
 googleMapsConfig['address'] = '<?= urlencode($this->getField('street')) . ',' 
 	. $this->getField('zip') . ',' . urlencode($this->getField('city')) ?>';
 googleMapsConfig['href'] = '<?= $this->_cfg->googlePlacesLink ?>';
-googleMapsConfig['title'] = 'Route planen mit Google Maps...';
+googleMapsConfig['title'] = '<?= $this->localize('RouteWithGoogle') ?>';
 googleMapsConfig['zoom'] = 15;
+googleMapsConfig['color'] = '#0F9CD9';
 </script>
 
 <script src="common/jumpage.js"></script>

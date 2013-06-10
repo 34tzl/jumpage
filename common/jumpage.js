@@ -147,7 +147,7 @@
             "featureType": "water",
             "elementType": "geometry",
             "stylers": [
-              { "color": "#2e9cd5" }
+              { "color": googleMapsConfig['color'] }
             ]
           },{
           },{
@@ -247,12 +247,13 @@
 			}
 		}
 		
-		var styledMapOptions = {
-			name : "jumpage"
-		};
-
-		var wyMapType = new google.maps.StyledMapType(mapStyle, styledMapOptions);
-		map.mapTypes.set('jumpagestyle', wyMapType);
+		var jpMapType = new google.maps.StyledMapType(mapStyle, {name : 'jumpage'});
+		map.mapTypes.set('jumpagestyle', jpMapType);
+		
+		window.map = map;
+		
+//		$(document).google = google;
+//		$(document).map = map;
 		
 		_resizeMaps();
 	}

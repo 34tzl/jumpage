@@ -635,16 +635,45 @@ class Jumpage
 				{
 					$href = $media->href;
 					
-					parse_str(parse_url($media->href, PHP_URL_QUERY), $query);
-					$src = urldecode(@$query['v']);
-					
-					if($src != '') // youtube
+					if(strpos($href, 'youtube') !== false)
+					{
+						parse_str(parse_url($media->href, PHP_URL_QUERY), $query);
+						$src = urldecode(@$query['v']);
+						
+						if($src != '') // youtube
+						{
+							$image = array();
+							$w = $h = 300;
+							
+							$url = 'http://img.youtube.com/vi/' . $src . '/0.jpg';
+	// 						$imginfo = getimagesize($url);
+							
+							$image['src'] = $url;
+							$image['width'] = $w; // $imginfo[0];
+							$image['height'] = $h; // $imginfo[0];
+							$image['alt'] = $media->alt;
+							$image['href'] = $media->href;
+							$image['type'] = 'video';
+							$image['origin'] = 'youtube';
+							
+							
+	// 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
+	// 							. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
+	// 						$image['width'] = $w;;
+	// 						$image['height'] = $h;
+	// 						$image['alt'] = $media->alt;
+	// 						$image['href'] = $media->href;
+	// 						$image['type'] = 'video';
+						
+						}
+					}
+					elseif(strpos($href, 'facebook') !== false)
 					{
 						$image = array();
 						$w = $h = 300;
 						
-						$url = 'http://img.youtube.com/vi/' . $src . '/0.jpg';
-// 						$imginfo = getimagesize($url);
+						$url = 'https://fbexternal-a.akamaihd.net/safe_image.php?url=';
+						$url .= urlencode(str_replace('_t.jpg', '_b.jpg', $media->src));
 						
 						$image['src'] = $url;
 						$image['width'] = $w; // $imginfo[0];
@@ -652,17 +681,11 @@ class Jumpage
 						$image['alt'] = $media->alt;
 						$image['href'] = $media->href;
 						$image['type'] = 'video';
-						$image['origin'] = 'youtube';
+						$image['origin'] = 'facebook';
 						
 						
-// 						$image['html'] = '<iframe class="ytplayer" width="800" height="600" src="http://www.youtube.com/embed/'
-// 							. $src . '?autoplay=0&amp;controls=0&amp;autohide=2&amp;showinfo=0"></iframe>';
-// 						$image['width'] = $w;;
-// 						$image['height'] = $h;
-// 						$image['alt'] = $media->alt;
-// 						$image['href'] = $media->href;
-// 						$image['type'] = 'video';
 					}
+					
 // 					elseif(strpos($href, 'vimeo') !== false)
 // 					{
 // 						$bits = explode('/', $href);
@@ -1147,7 +1170,7 @@ class Jumpage
 			. 'WHERE width >= ' . $width . ' AND photo_id IN(' . $where . ') ORDER BY width';
 		
 		$items = $this->getByFqlQuery($fql);
-		$images = array();
+// 		$images = array();
 		
 		foreach($items as $item)
 		{
@@ -1155,10 +1178,10 @@ class Jumpage
 			$helper[$item->photo_id]->width = $item->width;
 			$helper[$item->photo_id]->height = $item->height;
 			
-			$images[$item->photo_id] = $helper[$item->photo_id];
+// 			$images[$item->photo_id] = $helper[$item->photo_id];
 		}
 		
-		return $images;
+		return $helper;
 	}
 
 	public function getNotes()

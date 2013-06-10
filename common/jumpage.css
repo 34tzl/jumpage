@@ -637,6 +637,11 @@ h2 {
 	letter-spacing: 0;
 }
 
+footer {
+	background: #303030;
+	color: #fff;
+}
+
 ::selection {
 	background: #0F9CD9;
 	text-shadow: none;
@@ -649,13 +654,11 @@ h2 {
 	color: #fff;
 }
 
-a:link {
-	
-}
-
 a, a:active, a:visited {
 	text-decoration: none;
+	color: #999999;
 }
+
 a:hover {
 	color: #0F9CD9;
 }
@@ -800,14 +803,8 @@ h2, .t-large {
 	display: block;
 }
 
-footer, .buttonbar {
-	background: #303030;
-	padding-bottom: 1.5em;
-	min-height: 25%;
-}
-
 .buttonbar {
-	margin-top: -.125em;
+	padding-bottom: 1.5em;
 }
 
 .buttons {
@@ -850,9 +847,14 @@ a.btn {
 	border-radius: .3125em;
 }
 
-.btn:hover, .hvr:hover {
+a.btn:hover, .btn:hover, .sbt:hover, .hvr:hover {
 	background: #0F9CD9;
 	color: #fff;
+}
+
+.sbt {
+	width: 100%;
+	border: 0;
 }
 
 .followbtn {
