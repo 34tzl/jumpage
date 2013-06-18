@@ -52,6 +52,8 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 
 <link rel="stylesheet" href="common/jumpage.css" />
 
+<!-- CUSTOM_STYLE_PLACEHOLDER -->
+
 <script src="common/modernizr-2.6.2.min.js"></script>
 
 <base target="_top" />
@@ -62,7 +64,7 @@ $showGoogleMaps = strlen(trim($this->getField('zip'))) > 0;
 <header>
 <div class="pagetitle">
 <?= $this->getField('name', '', '<h1 class="t-large">', '</h1>') ?>
-<?= $this->getField('categories', '', '<h2>', '</h2>') ?>
+<? /* = $this->getField('categories', '', '<h2>', '</h2>') */ ?>
 </div>
 <?php if($cover = @$this->getImage($this->profile['cover']->cover_id)) { ?>
 <figure class="cover"><img 
@@ -146,62 +148,7 @@ else
 
 <?php $openingTimes = $this->getOpeningTimes(); if(count($openingTimes['time']) > 0){ ?>
 <?= $this->localize('OpeningTimes') ?><br />
-<?php
-
-$myTimes = array();
-
-foreach ($openingTimes['time'] as $openingTime)
-{
-	$bits = explode('|', $openingTime);
-	$days = explode(', ', $bits[0]);
-	
-	$time = $bits[1];
-	$day = '';
- 	
-	$i = count($days);
-	
-	if ($i == 2)
-	{
-		$day = implode('/', $days);
-	}
-	elseif ($i > 2)
-	{
-		$day = array_shift($days);
-		$day .= ' - ' . array_pop($days);
-	}
-	else
-	{
-		$day = $days[0];
-	}
-	
-	$myTimes[] = str_replace(array(
-		'mon',
-		'tue',
-		'wed',
-		'thu',
-		'fri',
-		'sat',
-		'sun'
-	), array(
-		$this->localize('mon'),
-		$this->localize('tue'),
-		$this->localize('wed'),
-		$this->localize('thu'),
-		$this->localize('fri'),
-		$this->localize('sat'),
-		$this->localize('sun')
-	), $day) . ' ' . str_replace(array(
-		':00',
-		'-'
-	  ), array(
-		':00',
-		' - '
-	  ), $time) . '';
-}
-?>
-<?php foreach($myTimes as $myTime) { ?>
-<?= $myTime ?><br />
-<?php } ?>
+<?= $openingTimes['html'] ?>
 <?php } ?>
 
 </div></div>
@@ -216,7 +163,7 @@ if($legal =  $this->getNote($this->_cfg->notes['legal'], true, true))
 $legal_subject = $legal->subject;
 $legal_message = $this->linkify($legal->message);
 ?>
-<div class="pdt"><div class="t-small"><?= $legal_message ?></div></div>
+<div class="pdt pdb"><div class="t-small"><?= $legal_message ?></div></div>
 <?php } ?>
 <?php } ?>
 </div>

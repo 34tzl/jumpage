@@ -2,6 +2,9 @@
 #SetEnv APPLICATION_ENV production
 #DirectoryIndex index.php
 
+#AddHandler x-mapp-php5 .php
+#AddType x-mapp-php5 .php
+
 <IfModule mod_headers.c>
   Header set X-UA-Compatible "IE=Edge,chrome=1"
 </IfModule>

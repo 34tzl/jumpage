@@ -810,7 +810,7 @@ h2, .t-large {
 .buttons {
 	position: relative;
 	text-align: center;
-	padding-top: 3em;
+	padding-top: 1.5em;
 	margin: 0 auto;
 	display: block;
 	width: 100%;
@@ -825,7 +825,7 @@ h2, .t-large {
 	position: absolute;
 	display: block;
 	right: 1.5em;
-	top: 3em;
+	top: 1.5em;
 }
 
 .hvr {

@@ -371,6 +371,8 @@ class Jumpage
 			$this->profile['categories'] = $helper;
 		}
 		
+		$this->profile['categories'] = ''; // TBD
+		
 			
 		// Map fields for description
 		if(empty($this->profile['description']))
@@ -1333,15 +1335,101 @@ class Jumpage
 		*/
 		
 		$open = array(
+			'timedays' => array(),
 			'day' => array(),
 			'time' => array(),
-			'val' => array()
+			'val' => array(),
+			'html' => ''
 		);
 		
 		if(!empty($this->profile['hours']))
 		{
+			$weekdays = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
+			
 			$times = array();
 			$days = array();
+			
+			$timedays = array();
+			$html = '';
+			
+			foreach($weekdays as $weekday)
+			{
+				$helper1 = $helper2 = array();
+				
+				foreach($this->profile['hours'] as $key => $value)
+				{
+					$bits = explode('_', $key);
+					
+					if($bits[0] == $weekday)
+					{
+						if($bits[1] == '1')
+						{
+							$helper1[] = $value;
+						}
+						elseif($bits[1] == '2')
+						{
+							$helper2[] = $value;
+						}
+					}
+				}
+				
+				$helper = implode(' - ', $helper1);
+				
+				if(count($helper2) > 0)
+				{
+					$helper .= ', ' . implode(' - ', $helper2);
+				}
+				
+				if(strlen($helper) > 5)
+				{
+					$valkey = md5($helper);
+					
+					if(array_key_exists($valkey, $timedays))
+					{
+						$timedays[$valkey]['days'][] = $weekday;
+					}
+					else
+					{
+						$timedays[$valkey] = array(
+							'time' => $helper,
+							'days' => array($weekday)
+						);
+					}
+				}
+			}
+			
+			$open['timedays'] = $timedays;
+			
+			foreach($timedays as $timeday)
+			{
+				if($html != '')
+				{
+					$html .= '<br />';
+				}
+				
+				if(count($timeday['days']) > 1)
+				{
+					$day = array_shift($timeday['days']);
+
+					$html .= $this->localize($day) . ' - ';
+					
+					$day = array_pop($timeday['days']);
+					
+					$html .= $this->localize($day) . ' &nbsp; ';
+					
+					$html .= str_replace(', ', ' &nbsp; ', $timeday['time']);
+				}
+				else
+				{
+					$day = array_shift($timeday['days']);
+					
+					$html .= $this->localize($day) . ' &nbsp; ';
+					
+					$html .= str_replace(', ', ' &nbsp; ', $timeday['time']);;
+				}
+			}
+			
+			$open['html'] = $html;
 			
 			foreach($this->profile['hours'] as $key => $value)
 			{
