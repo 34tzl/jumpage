@@ -1352,6 +1352,9 @@ class Jumpage
 			$timedays = array();
 			$html = '';
 			
+			$comparer = '';
+			$counter = 0;
+			
 			foreach($weekdays as $weekday)
 			{
 				$helper1 = $helper2 = array();
@@ -1382,7 +1385,18 @@ class Jumpage
 				
 				if(strlen($helper) > 5)
 				{
-					$valkey = md5($helper);
+					if($comparer == '')
+					{
+						$comparer = $helper;
+					}
+					
+					if($comparer != $helper)
+					{
+						$comparer = $helper;
+						$counter++;
+					}
+					
+					$valkey = md5($helper . $counter);
 					
 					if(array_key_exists($valkey, $timedays))
 					{
