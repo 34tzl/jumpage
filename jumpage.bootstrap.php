@@ -23,9 +23,9 @@
  *  Token on jumpage.net/app
  *  
  */
-if(version_compare(PHP_VERSION, '5.3.0', '<'))
+if(version_compare(PHP_VERSION, '5.2.0', '<'))
 {
-	exit('PHP version must be 5.3.0 or higher. Your version: ' . PHP_VERSION);
+	exit('PHP version must be 5.2.0 or higher. Your version: ' . PHP_VERSION);
 }
 
 defined('__DIR__') || define(

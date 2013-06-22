@@ -138,7 +138,7 @@ class Jumpage
 		{
 			if(!empty($this->_cfg->createLegalNote))
 			{
-				$legalNoteId = $this->_initLegalNote($cfgfile);
+				$legalNoteId = $this->_initLegalNote($cfgfile, $this->profile['is_published']);
 				
 				if(!empty($this->_cfg->notes['legal']))
 				{
@@ -188,9 +188,8 @@ class Jumpage
 		return $config;
 	}
 	
-	private function _initLegalNote($cfgfile)
+	private function _initLegalNote($cfgfile, $published)
 	{
-        
 		$fbLegalNoteId = trim(str_replace(
 			'[LEGAL_NOTE_ID_PLACEHOLDER]', '', 
 			$this->_cfg->notes['legal']
@@ -214,23 +213,25 @@ class Jumpage
 		{
 			$fbLegalNoteId = $item[0]->note_id;
 		}
-		
-		$fql = "SELECT attachment.href FROM stream WHERE source_id='"
-			. $fbWallId . "' AND actor_id='"
-			. $fbWallId . "' AND type=66 "
-			. "AND app_id=330339440353654"; // jumpage
-		
-		if($item = $this->getByFqlQuery($fql))
+		else
 		{
-			if(!empty($item[0]->attachment->href))
+			$fql = "SELECT attachment.href FROM stream WHERE source_id='"
+				. $fbWallId . "' AND actor_id='"
+				. $fbWallId . "' AND type=66 "
+				. "AND app_id=330339440353654"; // jumpage
+			
+			if($item = $this->getByFqlQuery($fql))
 			{
-				$fbLegalNoteId = strval(ltrim(
-					strrchr($item[0]->attachment->href, '/'),
-				'/'));
+				if(!empty($item[0]->attachment->href))
+				{
+					$fbLegalNoteId = strval(ltrim(
+						strrchr($item[0]->attachment->href, '/'),
+					'/'));
+				}
 			}
 		}
 		
-		if($fbLegalNoteId == '')
+		if($fbLegalNoteId == '' && $published)
 		{
 			$legalNoteTitle = $this->localize('WelcomeToJumpageNoteTitle', 'Welcome to jumpage');
 			$legalNoteMsg = $this->localize('WelcomeToJumpageNoteContent', 
@@ -383,7 +384,7 @@ class Jumpage
 			}
 		}
 		
-		$this->profile['about'] = htmlentities($this->profile['about']);
+		$this->profile['about'] = htmlspecialchars($this->profile['about']);
 	}
 	
 	private function _initImages()
