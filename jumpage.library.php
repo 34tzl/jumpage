@@ -146,16 +146,13 @@ class Jumpage
 				}
 			}
 			
-			if(isset($this->_cfg->createIcons))
+			if(!empty($this->_cfg->createIcons))
 			{
-				if($this->_cfg->createIcons)
+				try
 				{
-					try
-					{
-						$this->_initGraphTouchFavIcons();
-					}
-					catch(Exception $e){}
+					$this->_initGraphTouchFavIcons();
 				}
+				catch(Exception $e){}
 			}
 		}
 		
@@ -1069,9 +1066,9 @@ class Jumpage
 	
 	public function getAlbumIdByName($fbname)
 	{
-		$fql = "SELECT aid FROM album WHERE type='normal' AND owner='"
+		$fql = "SELECT aid FROM album WHERE owner='"
 			. $this->_cfg->fbWallId . "' AND name='" . $fbname . "'";
-			
+		
 		$item = $this->getByFqlQuery($fql, 'en_US');
 		
 		return $item[0]->aid;
