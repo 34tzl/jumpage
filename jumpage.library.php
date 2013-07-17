@@ -399,9 +399,10 @@ class Jumpage
 	
 	private function _initGraphTouchFavIcons()
 	{
-		$url = $this->_cfg->defaultGraphUrl
-			. $this->_cfg->fbUserName 
-			. '/picture?type=large';
+		$url = $this->_cfg->secureGraphUrl
+            . $this->_cfg->fbUserName 
+            . '/picture?type=large&access_token='
+            . $this->_cfg->fbAccessToken;
 		
 		$imgtmp = './fbpicture.temp.jpg';
 	
@@ -873,6 +874,7 @@ class Jumpage
 		/* 
 			The type of photo album. Can be one of
 			
+			cover: The album containing cover pictures
 			profile: The album containing profile pictures
 			mobile: The album containing mobile upload photos
 			wall The album containing photos posted to a user's Wall
@@ -1066,6 +1068,11 @@ class Jumpage
 	
 	public function getAlbumIdByName($fbname)
 	{
+		if($fbname == 'Cover Photos')
+		{
+			return 'cover'; // breaking change July 2013
+		}
+		
 		$fql = "SELECT aid FROM album WHERE owner='"
 			. $this->_cfg->fbWallId . "' AND name='" . $fbname . "'";
 		
@@ -1087,12 +1094,18 @@ class Jumpage
 				. '_' . $this->_cfg->fbAlbumId;
 		}
 		
+		if(stripos($order, 'position')  !== false) // default sort order
+		{
+			$order = '';
+		}
+		
 // 		$fql = "SELECT src, width, height FROM photo_src WHERE width > 960 "
 // 			. "AND photo_id IN(SELECT object_id FROM photo WHERE aid='" . $aid . "')";
 		
 		$iswall = $aid == 'wall';
 		
 		$albumtypes = array(
+			'cover',
 			'profile',
 			'mobile',
 			'wall'
@@ -1105,11 +1118,6 @@ class Jumpage
 			
 			$item = $this->getByFqlQuery($fql);
 			$aid = $item[0]->aid;
-		}
-		
-		if($aid == 'cover')
-		{
-			$aid = $this->getAlbumIdByName('Cover Photos');
 		}
 		
 		$albums = explode(',', $aid);
@@ -1132,7 +1140,10 @@ class Jumpage
 			$fql .= " AND created > " . $timeLimit;
 		}
 		
-		 $fql .= " ORDER BY " . $order; // created, position
+		if($order != '')
+		{
+			$fql .= " ORDER BY " . $order; // created
+		}
 		
 		if($limit > 0)
 		{
